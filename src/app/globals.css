@@ -1,0 +1,158 @@
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+.latest-products {
+  padding: 80px 60px;
+  background: #fff;
+}
+
+.latest-products .section-subtitle,
+.latest-products .section-title {
+  text-align: center;   /* ✅ center heading */
+}
+.products-grid {
+  max-width: 1200px;     /* ✅ Shopify-style width */
+  margin: 0 auto;        /* center grid */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+.product-card {
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.product-image {
+  background: #f7f7f7;
+  height: 420px;                 /* ✅ fixed height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.product-image img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.product-category {
+  font-size: 12px;
+  color: #bbb;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.product-name {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.product-price {
+  font-size: 16px;
+  font-weight: 600;
+}
+/* ===== PROMO SECTION ===== */
+.promo-section {
+  background: #eaf3ef;
+  padding: 100px 60px;
+  background-image: url("/leaf-bg.png"); /* optional */
+  background-repeat: repeat;
+}
+
+.promo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* IMAGE */
+.promo-image {
+  background: #fff2e6;
+  padding: 60px;
+  display: flex;
+  justify-content: center;
+}
+
+.promo-image img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* CONTENT */
+.promo-content h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.promo-content h4 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.promo-content p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+/* BUTTON */
+.promo-btn {
+  padding: 14px 34px;
+  background: #e08b4f;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.promo-btn:hover {
+  opacity: 0.9;
+}
