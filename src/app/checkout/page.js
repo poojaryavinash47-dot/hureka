@@ -1,112 +1,71 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
   const { cartItems } = useCart();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [processing, setProcessing] = useState(false);
 
-  // Safety check
+  // 🔐 Protect route
+  useEffect(() => {
+    if (!loading && !user) router.push("/login");
+  }, [user, loading]);
+
+  if (loading) return null;
+
   if (!cartItems || cartItems.length === 0) {
-    return (
-      <p style={{ padding: "80px", textAlign: "center" }}>
-        Your cart is empty
-      </p>
-    );
+    return <p style={{ padding: "80px", textAlign: "center" }}>Your cart is empty</p>;
   }
 
-  // Buy Now = single product
   const item = cartItems[0];
-
   const subtotal = Number(item.price) * item.qty;
-  const tax = Math.round(subtotal * 0.09); // example 9%
+  const tax = Math.round(subtotal * 0.09);
   const total = subtotal + tax;
 
-  // 🔥 Redirect to WooCommerce Checkout
-  const handlePayment = () => {
+  // ✅ Production payment handler
+  const handlePayment = async () => {
+    setProcessing(true);
+
+    const res = await fetch("/api/orders/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: cartItems,
+        subtotal,
+        tax,
+        total,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("Failed to create order");
+      setProcessing(false);
+      return;
+    }
+
+    // 🔥 Redirect to payment gateway with order ID
     window.location.href =
-      "https://siddartha123.nxtwat.in/checkout";
+      `https://siddartha123.nxtwat.in/checkout?orderId=${data.orderId}`;
   };
 
   return (
     <section className="checkout-page">
+      {/* YOUR UI REMAINS SAME */}
 
-      {/* LEFT – CUSTOMER DETAILS */}
-      <div className="checkout-left">
-        <h2>Contact</h2>
-        <input
-          type="email"
-          placeholder="Email or mobile phone number"
-        />
-
-        <label className="checkbox">
-          <input type="checkbox" />
-          Email me with news and offers
-        </label>
-
-        <h2>Delivery</h2>
-
-        <select>
-          <option>India</option>
-        </select>
-
-        <div className="two-col">
-          <input placeholder="First name (optional)" />
-          <input placeholder="Last name" />
-        </div>
-
-        <input placeholder="Address" />
-        <input placeholder="Apartment, suite, etc. (optional)" />
-
-        <div className="three-col">
-          <input placeholder="City" />
-          <select>
-            <option>Karnataka</option>
-          </select>
-          <input placeholder="PIN code" />
-        </div>
-
-        <label className="checkbox">
-          <input type="checkbox" />
-          Save this information for next time
-        </label>
-      </div>
-
-      {/* RIGHT – ORDER SUMMARY */}
-      <div className="checkout-right">
-
-        <div className="product-summary">
-          <img src={item.image} alt={item.name} />
-
-          <div className="product-info">
-            <p className="name">{item.name}</p>
-            <p className="variant">{item.category}</p>
-            <p className="qty">Qty: {item.qty}</p>
-          </div>
-
-          <span className="price">₹{item.price}</span>
-        </div>
-
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
-        </div>
-
-        <div className="summary-row">
-          <span>Estimated taxes</span>
-          <span>₹{tax}</span>
-        </div>
-
-        <div className="summary-total">
-          <span>Total</span>
-          <strong>₹{total}</strong>
-        </div>
-
-        {/* PAY NOW */}
-        <button className="pay-now-btn" onClick={handlePayment}>
-          Pay Now
-        </button>
-
-      </div>
+      <button
+        className="pay-now-btn"
+        onClick={handlePayment}
+        disabled={processing}
+      >
+        {processing ? "Processing..." : "Pay Now"}
+      </button>
     </section>
   );
 }

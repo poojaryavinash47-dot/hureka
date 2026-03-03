@@ -7,60 +7,99 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { refreshUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false); // ✅ modal state
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const existingUser = users.find(
-      (u) => u.email === email && u.password === password
-    );
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!existingUser) {
-      setError("Invalid email or password");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Invalid email or password");
+        return;
+      }
+
+      // ✅ sync auth state
+      await refreshUser();
+
+      // ✅ show success modal
+      setShowSuccess(true);
+    } catch (err) {
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    login(existingUser); // ✅ save auth_user
-    router.push("/");
   };
 
   return (
-    <section className="auth-page">
-      <h1>Login</h1>
+    <>
+      <section className="auth-page">
+        <h1>Welcome Back</h1>
+        <p className="auth-subtitle">
+          Login to continue your wellness journey
+        </p>
 
-      {error && <p className="error">{error}</p>}
+        {error && <p className="error">{error}</p>}
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleLogin} className="auth-form">
+          <input
+            type="email"
+            placeholder="Email address"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
 
-      {/* 🔥 SIGN UP LINK */}
-      <p className="auth-switch">
-        Don’t have an account?{" "}
-        <Link href="/signup">Sign up</Link>
-      </p>
-    </section>
+        <p className="auth-switch">
+          Don’t have an account? <Link href="/signup">Sign up</Link>
+        </p>
+      </section>
+
+      {/* ✅ SUCCESS MODAL */}
+      {showSuccess && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>🎉 Login Successful!</h2>
+            <p>Welcome back to HUREKA.</p>
+
+            <button
+              className="modal-btn"
+              onClick={() => router.push("/")}
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

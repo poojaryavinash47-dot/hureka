@@ -28,7 +28,6 @@ export default function ComboDetailsPage() {
           return;
         }
 
-        // ✅ Convert ALL visible attributes into dynamic tabs
         const attributes = Array.isArray(p.attributes)
           ? p.attributes
               .filter((a) => a.visible && a.options?.length > 0)
@@ -40,17 +39,13 @@ export default function ComboDetailsPage() {
           : [];
 
         setProduct({
-          id: p.id,
+          slug: p.slug, // ✅ store slug
           name: p.name,
-          slug: p.slug,
-          price: p.price,
-          mrp: p.regular_price,
+          price: Number(p.price),
+          mrp: Number(p.regular_price),
           image: p.images?.[0]?.src || "/placeholder.png",
-
-          // ✅ BOTH descriptions
           shortDescription: p.short_description,
           description: p.description,
-
           attributes,
         });
 
@@ -73,25 +68,34 @@ export default function ComboDetailsPage() {
     return <p style={{ padding: "80px" }}>Product not found</p>;
   }
 
-  const handleAddToCart = () => {
-    addToCart({ ...product, qty: 1, type: "combo" });
-    setShowPopup(true);
+  // ✅ CONSISTENT ADD TO CART
+  const handleAddToCart = (redirect = false) => {
+    addToCart({
+      productId: product.slug,   // ✅ use slug as unique ID
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: "combo",
+    });
+
+    if (redirect) {
+      router.push("/checkout");
+    } else {
+      setShowPopup(true);
+    }
   };
 
   return (
     <section className="combo-details-page">
       <div className="combo-details-container">
 
-        {/* IMAGE */}
         <div className="combo-details-image">
           <img src={product.image} alt={product.name} />
         </div>
 
-        {/* INFO */}
         <div className="combo-details-info">
           <h1 className="combo-title">{product.name}</h1>
 
-          {/* SMALL DESCRIPTION */}
           {product.shortDescription && (
             <div
               className="combo-subtitle"
@@ -101,7 +105,6 @@ export default function ComboDetailsPage() {
             />
           )}
 
-          {/* PRICE */}
           <div className="combo-price-box">
             <span className="combo-price">₹{product.price}</span>
             {product.mrp && (
@@ -113,28 +116,24 @@ export default function ComboDetailsPage() {
               </>
             )}
           </div>
- <div className="combo-actions">
+
+          <div className="combo-actions">
             <button
               className="combo-cart-btn"
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart(false)}
             >
               Add to Cart
             </button>
 
             <button
               className="combo-buy-btn"
-              onClick={() => {
-                handleAddToCart();
-                router.push("/checkout");
-              }}
+              onClick={() => handleAddToCart(true)}
             >
               Buy Now
             </button>
           </div>
-          {/* TABS */}
-          <div className="product-tabs">
 
-            {/* TAB HEADERS */}
+          <div className="product-tabs">
             <div className="tab-headers">
               <button
                 className={activeTab === "description" ? "active" : ""}
@@ -155,7 +154,6 @@ export default function ComboDetailsPage() {
                 ))}
             </div>
 
-            {/* TAB CONTENT */}
             <div className="tab-content">
               {activeTab === "description" && (
                 <div
@@ -179,9 +177,6 @@ export default function ComboDetailsPage() {
                 )}
             </div>
           </div>
-
-          {/* ACTIONS */}
-         
         </div>
       </div>
 

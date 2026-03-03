@@ -6,43 +6,65 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import CartPopup from "./CartPopup";
+import LoginRequiredModal from "./LoginRequiredModal";
 
 export default function ProductCard({ product }) {
   const { name, category, image, price, mrp, discount, slug } = product;
 
   const { addToCart } = useCart();
-  const { user } = useAuth(); // ✅ auth state
+  const { user, loading } = useAuth();
   const router = useRouter();
+
   const [showPopup, setShowPopup] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const requireLogin = () => {
-    alert("Please login to continue");
-    router.push("/login");
+    setShowLoginModal(true);
   };
 
+  /* ================= ADD TO CART ================= */
   const handleAddToCart = (e) => {
-    e.stopPropagation(); // 🔥 IMPORTANT
     e.preventDefault();
+    e.stopPropagation();
+
+    if (loading) return;
 
     if (!user) {
       requireLogin();
       return;
     }
 
-    addToCart(product);
+    addToCart({
+      productId: slug,              // ✅ UNIQUE STRING ID
+      name: name,
+      price: Number(price),         // ✅ Always number
+      image: image,
+      type: "product",
+    });
+
     setShowPopup(true);
   };
 
+  /* ================= BUY NOW ================= */
   const handleBuyNow = (e) => {
-    e.stopPropagation(); // 🔥 IMPORTANT
     e.preventDefault();
+    e.stopPropagation();
+
+    if (loading) return;
 
     if (!user) {
       requireLogin();
       return;
     }
 
-    addToCart(product);
+    addToCart({
+      productId: slug,
+      name: name,
+      price: Number(price),
+      image: image,
+      type: "product",
+    });
+
     router.push("/checkout");
   };
 
@@ -50,7 +72,7 @@ export default function ProductCard({ product }) {
     <>
       <div className="product-card">
 
-        {/* ✅ LINK ONLY WHERE NAVIGATION IS NEEDED */}
+        {/* PRODUCT LINK */}
         <Link href={`/product/${slug}`} className="product-link">
           <div className="product-image">
             <img src={image} alt={name} />
@@ -61,7 +83,7 @@ export default function ProductCard({ product }) {
             <h3 className="product-name">{name}</h3>
 
             <div className="product-price">
-              <span className="mrp">₹{mrp}</span>
+              {mrp && <span className="mrp">₹{mrp}</span>}
               <span className="price">₹{price}</span>
               {discount && (
                 <span className="discount">{discount}% OFF</span>
@@ -70,23 +92,36 @@ export default function ProductCard({ product }) {
           </div>
         </Link>
 
-        {/* ✅ ACTIONS OUTSIDE LINK */}
+        {/* ACTION BUTTONS */}
         <div className="product-actions">
-          <button className="btn-cart" onClick={handleAddToCart}>
-            Add to Cart
+          <button
+            className="btn-cart"
+            onClick={handleAddToCart}
+            disabled={loading}
+          >
+            {loading ? "Please wait..." : "Add to Cart"}
           </button>
 
-          <button className="btn-buy" onClick={handleBuyNow}>
+          <button
+            className="btn-buy"
+            onClick={handleBuyNow}
+            disabled={loading}
+          >
             Buy Now
           </button>
         </div>
       </div>
 
-      {/* POPUP */}
+      {/* CART POPUP */}
       <CartPopup
         show={showPopup}
         onClose={() => setShowPopup(false)}
-        product={product}
+      />
+
+      {/* LOGIN REQUIRED MODAL */}
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
     </>
   );

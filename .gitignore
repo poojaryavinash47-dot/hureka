@@ -42,3 +42,7 @@ next-env.d.ts
 # environment variables (secrets)
 .env
 .env.*
+node_modules
+.env.local
+.next
+dist

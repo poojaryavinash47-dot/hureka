@@ -1,43 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
+  const router = useRouter();
+const { user, loading, logout } = useAuth();
+ // ✅ include loading
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const router = useRouter();
-  const { user, logout } = useAuth();
+  // ✅ hydration guard
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+// ⬇️ add this INSIDE Navbar component (above return)
+const handleProfileClick = () => {
+  console.log("PROFILE CLICKED", { user, loading });
 
+  if (loading) return;
+
+  if (!user) {
+    router.push("/login");
+  } else {
+    setProfileOpen(prev => !prev);
+  }
+};
   const closeAll = () => {
     setMenuOpen(false);
     setShopOpen(false);
     setProfileOpen(false);
   };
 
-  const toggleMenu = () => {
-    setMenuOpen((prev) => {
-      if (prev) setShopOpen(false);
-      return !prev;
-    });
-  };
+ 
 
   return (
     <nav className="navbar">
       {/* LOGO */}
       <div className="logo">
-        <Link href="/" onClick={closeAll}>HUREKA</Link>
+        <Link href="/" onClick={closeAll}>
+          HUREKA
+        </Link>
       </div>
 
       {/* MENU */}
       <ul className={`menu ${menuOpen ? "menu-open" : ""}`}>
         <li><Link href="/" onClick={closeAll}>Home</Link></li>
 
-        {/* SHOP DROPDOWN */}
+        {/* SHOP */}
         <li className={`dropdown ${shopOpen ? "open" : ""}`}>
           <button
             type="button"
@@ -45,23 +59,15 @@ export default function Navbar() {
             onClick={() => setShopOpen((prev) => !prev)}
           >
             <span>Shop</span>
-            <span className="arrow">{shopOpen ? "▲" : "▼"}</span>
+            <span className="arrow">▼</span>
           </button>
 
           <ul className="dropdown-menu">
-            {[
-              ["joint-care", "Joint Care"],
-              ["hair-care", "Hair Care"],
-              ["bone-calcium", "Bone & Calcium"],
-              ["multivitamins", "Multivitamins"],
-              ["immunity-support", "Immunity Support"],
-            ].map(([slug, label]) => (
-              <li key={slug}>
-                <Link href={`/shop/${slug}`} onClick={closeAll}>
-                  {label}
-                </Link>
-              </li>
-            ))}
+            <li><Link href="/shop/joint-care" onClick={closeAll}>Joint Care</Link></li>
+            <li><Link href="/shop/hair-care" onClick={closeAll}>Hair Care</Link></li>
+            <li><Link href="/shop/bone-calcium" onClick={closeAll}>Bone & Calcium</Link></li>
+            <li><Link href="/shop/multivitamins" onClick={closeAll}>Multivitamins</Link></li>
+            <li><Link href="/shop/immunity-support" onClick={closeAll}>Immunity Support</Link></li>
           </ul>
         </li>
 
@@ -69,52 +75,41 @@ export default function Navbar() {
         <li><Link href="/subscription-plans" onClick={closeAll}>Subscription Plans</Link></li>
         <li><Link href="/about-us" onClick={closeAll}>About Us</Link></li>
         <li><Link href="/contact" onClick={closeAll}>Contact</Link></li>
-
-        {/* CART ICON */}
-    
-
-        {/* PROFILE */}
-       {/* RIGHT SIDE ICONS */}
-<li className="nav-right">
-  <div className="cart-icon">
-    <Link href="/cart" onClick={closeAll}>🛒</Link>
-  </div>
-
-  <div className="profile-wrapper">
-    <button
-      className={`profile-btn ${user ? "logged-in" : ""}`}
-      onClick={() => {
-        if (!user) {
-          router.push("/login");
-        } else {
-          setProfileOpen((prev) => !prev);
-        }
-      }}
-    >
-      👤
-      {user && <span className="online-dot" />}
-    </button>
-
-    {user && profileOpen && (
-      <div className="profile-dropdown">
-        <Link href="/cart" onClick={closeAll}>🛒 View Cart</Link>
-        <button
-          onClick={() => {
-            logout();
-            closeAll();
-            router.push("/login");
-          }}
-        >
-          🚪 Logout
-        </button>
-      </div>
-    )}
-  </div>
-</li>
       </ul>
 
+      {/* PROFILE */}
+   <div className="profile-wrapper">
+  <button
+    className="profile-btn"
+    disabled={loading}
+    onClick={handleProfileClick}
+  >
+    👤
+    {user && <span className="online-dot" />}
+  </button>
+
+  {user && profileOpen && (
+    <div className="profile-dropdown">
+      <Link href="/cart" onClick={closeAll}>🛒 View Cart</Link>
+
+      <button
+        onClick={() => {
+          logout();
+          closeAll();
+          router.push("/login");
+        }}
+      >
+        🚪 Logout
+      </button>
+    </div>
+  )}
+</div>
+
       {/* HAMBURGER */}
-      <div className="hamburger" onClick={toggleMenu}>
+      <div
+        className="hamburger"
+        onClick={() => setMenuOpen((prev) => !prev)}
+      >
         <span />
         <span />
         <span />

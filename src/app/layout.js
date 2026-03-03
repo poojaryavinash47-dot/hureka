@@ -1,8 +1,8 @@
-import "../styles/global.css";
+import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { CartProvider } from "@/context/CartContext";
-import { AuthProvider } from "@/context/AuthContext";
+import "../styles/global.css";
 
 export default function RootLayout({ children }) {
   return (

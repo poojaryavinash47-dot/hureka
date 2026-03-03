@@ -3,12 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import CartPopup from "@/components/CartPopup";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { getProducts } from "@/lib/wooCommerce";
 
 export default function ComboOffersPage() {
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
+
   const [showPopup, setShowPopup] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [combos, setCombos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,7 +24,6 @@ export default function ComboOffersPage() {
       try {
         const products = await getProducts();
 
-        // ✅ filter only combo offers
         const comboProducts = products
           .filter((p) =>
             p.categories?.some(
@@ -27,11 +33,10 @@ export default function ComboOffersPage() {
             )
           )
           .map((p) => ({
-            id: p.id,
-            title: p.name,
+            name: p.name,
             slug: p.slug,
-            price: p.price,
-            mrp: p.regular_price,
+            price: Number(p.price),
+            mrp: Number(p.regular_price),
             image: p.images?.[0]?.src || "/placeholder.png",
             description: p.short_description,
           }));
@@ -47,9 +52,29 @@ export default function ComboOffersPage() {
     fetchCombos();
   }, []);
 
-  const handleAddToCart = (combo) => {
-    addToCart({ ...combo, qty: 1, type: "combo" });
-    setShowPopup(true);
+  const requireLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleAddToCart = (combo, redirect = false) => {
+    if (!user) {
+      requireLogin();
+      return;
+    }
+
+    addToCart({
+      productId: combo.slug,   // ✅ SLUG as unique ID
+      name: combo.name,
+      price: combo.price,
+      image: combo.image,
+      type: "combo",
+    });
+
+    if (redirect) {
+      router.push("/checkout");
+    } else {
+      setShowPopup(true);
+    }
   };
 
   if (loading) {
@@ -57,87 +82,94 @@ export default function ComboOffersPage() {
   }
 
   return (
-    <section className="combo-page">
-      {/* HEADER */}
-      <div className="combo-header">
-        <h1>Combo Offers</h1>
-        <p>Save more with our carefully curated health combos</p>
-      </div>
+    <>
+      <section className="combo-page">
 
-      {/* COMBO GRID */}
-      <div className="combo-grid">
-        {combos.length > 0 ? (
-          combos.map((combo) => (
-            <Link
-              key={combo.id}
-              href={`/combo/${combo.slug}`}
-              className="combo-link"
-            >
-              <div className="combo-card">
-                {/* IMAGE */}
-                <div className="combo-image">
-                  <img src={combo.image} alt={combo.title} />
-                </div>
+        <div className="combo-header">
+          <h1>Combo Offers</h1>
+          <p>Save more with our carefully curated health combos</p>
+        </div>
 
-                {/* INFO */}
-                <div className="combo-info">
-                  <h3>{combo.title}</h3>
+        <div className="combo-grid">
+          {combos.length > 0 ? (
+            combos.map((combo) => (
+              <Link
+                key={combo.slug}
+                href={`/combo/${combo.slug}`}
+                className="combo-link"
+              >
+                <div className="combo-card">
 
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: combo.description,
-                    }}
-                  />
-
-                  {/* PRICE */}
-                  <div className="combo-price">
-                    <span className="combo-final">₹{combo.price}</span>
-                    {combo.mrp && (
-                      <>
-                        <span className="combo-mrp">₹{combo.mrp}</span>
-                        <span className="combo-save">
-                          Save ₹{combo.mrp - combo.price}
-                        </span>
-                      </>
-                    )}
+                  <div className="combo-image">
+                    <img src={combo.image} alt={combo.name} />
                   </div>
 
-                  {/* ACTIONS */}
-                  <div className="combo-actions">
-                    <button
-                      className="combo-btn combo-cart"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAddToCart(combo);
-                      }}
-                    >
-                      Add to Cart
-                    </button>
+                  <div className="combo-info">
+                    <h3>{combo.name}</h3>
 
-                    <button
-                      className="combo-btn combo-buy"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAddToCart(combo);
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: combo.description,
                       }}
-                    >
-                      Buy Now
-                    </button>
+                    />
+
+                    <div className="combo-price">
+                      <span className="combo-final">₹{combo.price}</span>
+
+                      {combo.mrp && (
+                        <>
+                          <span className="combo-mrp">₹{combo.mrp}</span>
+                          <span className="combo-save">
+                            Save ₹{combo.mrp - combo.price}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="combo-actions">
+                      <button
+                        className="combo-btn combo-cart"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart(combo);
+                        }}
+                      >
+                        Add to Cart
+                      </button>
+
+                      <button
+                        className="combo-btn combo-buy"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart(combo, true);
+                        }}
+                      >
+                        Buy Now
+                      </button>
+                    </div>
+
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <p>No combo offers available</p>
-        )}
-      </div>
+              </Link>
+            ))
+          ) : (
+            <p>No combo offers available</p>
+          )}
+        </div>
 
-      {/* CART POPUP */}
-      <CartPopup
-        show={showPopup}
-        onClose={() => setShowPopup(false)}
+        <CartPopup
+          show={showPopup}
+          onClose={() => setShowPopup(false)}
+        />
+
+      </section>
+
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
-    </section>
+    </>
   );
 }

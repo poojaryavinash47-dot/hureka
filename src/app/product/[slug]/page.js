@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext"; // ✅ ADD THIS
+import { useAuth } from "@/context/AuthContext";
 import CartPopup from "@/components/CartPopup";
 import { getProductBySlug } from "@/lib/wooCommerce";
 
@@ -12,7 +12,7 @@ export default function ProductDetailsPage() {
   const router = useRouter();
 
   const { addToCart } = useCart();
-  const { user } = useAuth(); // ✅ AUTH CHECK
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,11 +43,10 @@ export default function ProductDetailsPage() {
           : [];
 
         setProduct({
-          id: p.id,
+          slug: p.slug, // ✅ use slug everywhere
           name: p.name,
-          slug: p.slug,
           price: Number(p.price),
-          mrp: p.regular_price,
+          mrp: Number(p.regular_price),
           image: p.images?.[0]?.src || "/placeholder.png",
           category: p.categories?.[0]?.name || "",
           shortDescription: p.short_description,
@@ -70,48 +69,48 @@ export default function ProductDetailsPage() {
   if (loading) return <p style={{ padding: 80 }}>Loading product...</p>;
   if (!product) return <p style={{ padding: 80 }}>Product not found</p>;
 
-  /* ✅ LOGIN REQUIRED FUNCTION */
   const requireLogin = () => {
     alert("Please login to continue");
     router.push("/login");
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (redirect = false) => {
     if (!user) {
       requireLogin();
       return;
     }
 
-    addToCart({ ...product, qty: 1 });
-    setShowPopup(true);
-  };
+    addToCart({
+      productId: product.slug,   // ✅ ALWAYS use slug
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: "product",
+    });
 
-  const handleBuyNow = () => {
-    if (!user) {
-      requireLogin();
-      return;
+    if (redirect) {
+      router.push("/checkout");
+    } else {
+      setShowPopup(true);
     }
-
-    addToCart({ ...product, qty: 1 });
-    router.push("/checkout");
   };
 
   return (
     <section className="product-details-page">
       <div className="product-details">
 
-        {/* IMAGE */}
         <div className="details-image">
           <img src={product.image} alt={product.name} />
         </div>
 
-        {/* INFO */}
         <div className="details-info">
           <p className="category">{product.category}</p>
           <h1>{product.name}</h1>
 
           <div className="price-box">
-            {product.mrp && <span className="mrp">₹{product.mrp}</span>}
+            {product.mrp && (
+              <span className="mrp">₹{product.mrp}</span>
+            )}
             <span className="price">₹{product.price}</span>
           </div>
 
@@ -128,20 +127,20 @@ export default function ProductDetailsPage() {
             />
           )}
 
-          {/* ACTIONS */}
           <div className="actions">
-            <button onClick={handleAddToCart}>
+            <button onClick={() => handleAddToCart(false)}>
               Add to Cart
             </button>
 
-            <button className="buy-now" onClick={handleBuyNow}>
+            <button
+              className="buy-now"
+              onClick={() => handleAddToCart(true)}
+            >
               Buy Now
             </button>
           </div>
 
-          {/* TABS */}
           <div className="product-tabs">
-
             <div className="tab-headers">
               <button
                 className={activeTab === "description" ? "active" : ""}
@@ -169,7 +168,6 @@ export default function ProductDetailsPage() {
             </div>
 
             <div className="tab-content">
-
               {activeTab === "description" && (
                 <div
                   className="combo-full-description"
@@ -193,46 +191,9 @@ export default function ProductDetailsPage() {
               {activeTab === "reviews" && (
                 <div className="reviews-section">
                   <h2>Customer Reviews</h2>
-
-                  <div className="review-summary">
-                    <div className="stars">★★★★★</div>
-                    <p>Be the first to write a review</p>
-                  </div>
-
-                  <hr />
-
-                  <div className="write-review">
-                    <h3>Write a review</h3>
-
-                    <div className="rating">
-                      <label>Rating</label>
-                      <div className="star-rating">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span
-                            key={star}
-                            className={`star ${
-                              rating >= star ? "active" : ""
-                            }`}
-                            onClick={() => setRating(star)}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <input placeholder="Give your review a title" />
-                    <textarea
-                      rows="5"
-                      placeholder="Start writing here..."
-                    />
-                    <button className="submit-review">
-                      Submit Review
-                    </button>
-                  </div>
+                  <p>Be the first to write a review</p>
                 </div>
               )}
-
             </div>
           </div>
         </div>

@@ -1343,7 +1343,7 @@ body {
     padding: 0 14px;
     font-size: 14px;
     border-radius: 10px;
-    border: 1px solid #f1d7c8;
+    border: 1px solid ;
   }
 
   /* PRICE FILTER (SMALLER) */
@@ -4416,4 +4416,551 @@ body {
     height: 2px;
     background: #3a2f2f;
   }
+}
+/* Overlay */
+.login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Modal box */
+.login-modal {
+  background: #fff;
+  padding: 24px;
+  width: 90%;
+  max-width: 380px;
+  border-radius: 12px;
+  text-align: center;
+  animation: scaleIn 0.25s ease;
+}
+
+.login-modal h3 {
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.login-modal p {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+.login-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background: #eee;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-login {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Animation */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* GLOBAL FONT */
+/* SHOP DROPDOWN CONTAINER */
+.dropdown {
+  position: relative;
+}
+
+/* DROPDOWN MENU */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff5ea; /* your beige color */
+  min-width: 220px;
+  padding: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  display: none;
+  z-index: 1000;
+}
+
+/* SHOW WHEN OPEN */
+.dropdown.open .dropdown-menu {
+  display: block;
+}
+
+/* ITEMS */
+.dropdown-menu li {
+  padding: 10px 18px;
+}
+
+.dropdown-menu li a {
+  display: block;
+  color: #333;
+}
+
+/* HOVER */
+.dropdown-menu li a:hover {
+  color: #000;
+}
+@media (max-width: 768px) {
+  .menu {
+    flex-direction: column;
+  }
+
+  .dropdown-menu {
+    position: static;   /* stack UNDER Shop */
+    box-shadow: none;
+    border-radius: 0;
+    background: transparent;
+    padding-left: 20px;
+  }
+
+  .dropdown-menu li {
+    padding: 8px 0;
+  }
+}
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* =========================
+   SHOP DROPDOWN – FINAL FIX
+========================= */
+
+/* Base */
+.dropdown {
+  position: relative;
+}
+
+/* Toggle button */
+.dropdown-toggle {
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3a2f2f;
+}
+
+/* Dropdown menu (desktop default) */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff6ef;
+  min-width: 240px;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+  padding: 10px 0;
+  list-style: none;
+  display: none;
+  z-index: 1000;
+}
+
+/* Desktop hover */
+@media (min-width: 769px) {
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+}
+
+/* Items */
+.dropdown-menu li a {
+  display: block;
+  padding: 14px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #3a2f2f;
+  text-decoration: none;
+}
+
+.dropdown-menu li a:hover {
+  background: #fbefe4;
+  color: #000;
+}
+
+/* =========================
+   MOBILE DROPDOWN
+========================= */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    background: transparent;
+    padding-left: 16px;
+    display: none;
+  }
+
+  .dropdown.open .dropdown-menu {
+    display: block;
+  }
+
+  .dropdown-menu li a {
+    padding: 12px 0;
+  }
+
+  .arrow {
+    transition: transform 0.3s ease;
+  }
+
+  .dropdown.open .arrow {
+    transform: rotate(180deg);
+  }
+}
+/* MOBILE SHOP TOGGLE FIX */
+@media (max-width: 768px) {
+  .dropdown-toggle {
+    width: auto;                 /* ✅ do NOT take full width */
+    display: inline-flex;        /* ✅ shrink to content */
+    align-items: center;
+    justify-content: flex-start; /* ✅ keep arrow near text */
+    gap: 6px;                    /* ✅ space between Shop & arrow */
+    padding: 14px 20px;          /* keep touch-friendly padding */
+  }
+}
+/* ===============================
+   MOBILE: REMOVE HEADER ICONS FROM MENU
+   =============================== */
+@media (max-width: 768px) {
+  .menu .nav-right {
+    display: none; /* 🔥 prevents profile from appearing at bottom */
+  }
+}
+/* ===============================
+   MOBILE HEADER ICONS (PRO LAYOUT)
+   =============================== */
+@media (max-width: 768px) {
+
+  .navbar {
+    position: relative;
+    height: 64px;
+  }
+
+  /* Profile icon in header */
+  .profile-wrapper {
+    position: absolute;
+    right: 64px;              /* 👈 just before hamburger */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Hamburger stays at far right */
+  .hamburger {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  /* Menu opens BELOW header */
+  .menu {
+    top: 64px;
+  }
+}
+/* NAV MENU ITEMS */
+.menu li a,
+.dropdown-toggle {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: #3a2f2f;
+}
+/* Hover */
+.menu li a:hover,
+.dropdown-toggle:hover {
+  color: #000;
+}
+
+/* Active underline (subtle) */
+.menu li a {
+  position: relative;
+}
+
+.menu li a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0%;
+  height: 2px;
+  background: #000;
+  transition: width 0.25s ease;
+}
+
+.menu li a:hover::after {
+  width: 100%;
+}
+/* ===============================
+   SHOP DROPDOWN – DESKTOP PRO STYLE
+   =============================== */
+
+/* Dropdown parent */
+.dropdown {
+  position: relative;
+}
+
+/* Toggle (Shop + arrow) */
+.dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Dropdown box */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background: #e7964a;          /* 🔶 orange like screenshot */
+  padding: 0;
+  margin-top: 10px;
+  display: none;
+  z-index: 1000;
+  border-radius:0px ;
+}
+
+/* Show on hover (desktop) */
+@media (min-width: 769px) {
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+}
+
+/* Dropdown items */
+.dropdown-menu li {
+  list-style: none;
+  border-bottom: 1px solid rgba(255,255,255,0.25);
+}
+
+.dropdown-menu li:last-child {
+  border-bottom: none;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 14px 18px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.25s ease;
+}
+
+/* Hover effect like SunOn */
+.dropdown-menu li a:hover {
+  background: rgba(0,0,0,0.08);
+}
+/* ===============================
+   SHOP DROPDOWN – MOBILE STYLE
+   =============================== */
+@media (max-width: 768px) {
+
+  .dropdown-menu {
+    position: static;
+    background:#fbefe4;
+    margin-top: 8px;
+    
+  }
+
+  .dropdown.open .dropdown-menu {
+    display: block;
+  }
+
+  .dropdown-menu li a {
+    padding: 16px 20px;
+  }
+}
+/* ===============================
+   DESKTOP: HOVER-BASED DROPDOWN
+   =============================== */
+@media (min-width: 769px) {
+
+  /* Parent must be relative */
+  .dropdown {
+    position: relative;
+  }
+
+  /* Hide by default */
+  .dropdown-menu {
+    display: none;
+  }
+
+  /* Show when hovering Shop */
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+
+  /* Keep menu open when hovering submenu */
+  .dropdown-menu:hover {
+    display: block;
+  }
+}
+/* ===============================
+   MOBILE: CLICK ONLY
+   =============================== */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    display: none;
+  }
+
+  .dropdown.open .dropdown-menu {
+    display: block;
+  }
+}
+/* ===============================
+   DESKTOP: FIX HOVER GAP ISSUE
+   =============================== */
+@media (min-width: 769px) {
+
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;          /* touches Shop */
+    left: 0;
+    min-width: 220px;
+    background: #e7964a;
+    display: none;
+    z-index: 1000;
+
+    /* 🔥 CRITICAL FIX */
+    margin-top: 0 !important;
+    padding-top: 0;
+  }
+
+  /* Show on hover */
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+
+  /* Keep open when hovering submenu */
+  .dropdown-menu:hover {
+    display: block;
+  }
+}
+/* ===============================
+   MOBILE: SUB NAVBAR TEXT COLOR
+   =============================== */
+@media (max-width: 768px) {
+
+  /* Submenu links */
+  .dropdown-menu li a {
+    color: #000 !important;   /* 🔥 black text */
+    font-weight: 500;
+  }
+
+  /* Optional: hover / tap feedback */
+  .dropdown-menu li a:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #000;
+  }
+}
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* MODAL BOX */
+.modal {
+  background: #fff;
+  padding: 32px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  animation: scaleIn 0.3s ease;
+}
+
+.modal h2 {
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.modal p {
+  color: #555;
+  margin-bottom: 24px;
+}
+
+/* MODAL BUTTON */
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 30px;
+  background: #e58f4a; /* HUREKA orange */
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-btn:hover {
+  background: #cf7d3c;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.profile-btn {
+  position: relative;
+}
+
+.online-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  background: #22c55e; /* green */
+  border-radius: 50%;
+  border: 2px solid #fff;
 }
