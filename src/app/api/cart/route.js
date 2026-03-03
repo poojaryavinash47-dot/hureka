@@ -8,17 +8,14 @@ import Cart from "@/models/Cart";
 /* ================= GET USER FROM TOKEN ================= */
 async function getUserIdFromToken() {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies(); // ✅ MUST AWAIT in Next 15
     const token = cookieStore.get("token")?.value;
-
-    console.log("TOKEN FROM CART:", token);
 
     if (!token) return null;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("DECODED:", decoded);
 
-    return decoded.id;
+    return decoded.id; // userId from JWT
   } catch (err) {
     console.error("JWT ERROR:", err.message);
     return null;
@@ -35,7 +32,9 @@ export async function GET() {
       return NextResponse.json({ items: [] });
     }
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
 
     return NextResponse.json({
       items: cart?.items || [],
@@ -68,11 +67,13 @@ export async function POST(req) {
       );
     }
 
-    let cart = await Cart.findOne({ userId });
+    let cart = await Cart.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
 
     if (!cart) {
       cart = await Cart.create({
-        userId,
+        userId: new mongoose.Types.ObjectId(userId),
         items: [],
       });
     }
@@ -119,16 +120,25 @@ export async function PUT(req) {
 
     const { productId, qty } = await req.json();
 
-    const cart = await Cart.findOne({ userId });
+    if (!productId || typeof qty !== "number") {
+      return NextResponse.json({ items: [] });
+    }
+
+    const cart = await Cart.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
     if (!cart) {
       return NextResponse.json({ items: [] });
     }
 
-    cart.items = cart.items.map((item) =>
-      item.productId === productId
-        ? { ...item.toObject(), qty: Math.max(1, qty) }
-        : item
+    const item = cart.items.find(
+      (item) => item.productId === productId
     );
+
+    if (item) {
+      item.qty = Math.max(1, qty);
+    }
 
     await cart.save();
 
@@ -153,7 +163,14 @@ export async function DELETE(req) {
 
     const { productId } = await req.json();
 
-    const cart = await Cart.findOne({ userId });
+    if (!productId) {
+      return NextResponse.json({ items: [] });
+    }
+
+    const cart = await Cart.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
     if (!cart) {
       return NextResponse.json({ items: [] });
     }

@@ -130,9 +130,7 @@ export default function CartPage() {
           </div>
 
           {/* ✅ CART TOTAL SECTION */}
-          <div className="cart-summary">
-            <h2>Total: ₹{totalAmount}</h2>
-          </div>
+        
         </>
       )}
     </section>
