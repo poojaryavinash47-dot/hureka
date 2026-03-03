@@ -1,26 +1,42 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function OilFreeSection() {
+  const router = useRouter();
+
   return (
     <section className="oilfree-section">
-      <div className="oilfree-container">
+      <div className="oilfree-wrapper">
+
         {/* LEFT CONTENT */}
         <div className="oilfree-content">
-          <h2>Oil Free Creams</h2>
-          <h4>Fabulous In Every Way.</h4>
+          <h2>Hureka Joint Care Capsules</h2>
+          <h4>Move Freely. Live Comfortably.</h4>
 
           <p>
-            Ut consequat semper viverra nam libero. Volutpat diam ut venenatis
-            tellus in metus. At tempor commodo ullamcorper a lacus. Proin
-            sagittis nisl rhoncus mattis rhoncus urna. Cras fermentum odio eu
-            feugiat pretium nibh.
+            Hureka Joint Care Capsules are formulated with a powerful blend of herbal
+            extracts and essential nutrients to support joint flexibility and mobility.
+            Designed to reduce stiffness and improve overall joint health, this advanced
+            formula promotes daily comfort and long-term strength. Ideal for adults
+            seeking natural joint support.
           </p>
 
-          <button className="oilfree-btn">SHOP NOW</button>
+          <button
+            className="oilfree-btn"
+            onClick={() => router.push("/shop/joint-care")}
+          >
+            SHOP NOW
+          </button>
         </div>
 
         {/* RIGHT IMAGE */}
-       <div className="promo-image">
-  <img src="/products/oilfree.png" alt="Oil Free Cream" />
-</div>
+        <img
+          className="oilfree-img"
+          src="/products/oilfree.png"
+          alt="Joint Care Capsules"
+        />
+
       </div>
     </section>
   );

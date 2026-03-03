@@ -4964,3 +4964,142 @@ body {
   border-radius: 50%;
   border: 2px solid #fff;
 }
+.promo-section {
+  padding: 0;
+  margin: 0;
+}
+
+.promo-wrapper {
+  display: flex;
+  align-items: center;   /* makes content align with image height */
+  justify-content: center;
+  gap: 60px;
+}
+
+/* IMAGE */
+.promo-img {
+  display: block;        /* removes bottom space */
+  height: auto;
+  max-height: 420px;     /* control image height */
+}
+
+/* CONTENT */
+.promo-content {
+  max-width: 500px;
+}
+.oilfree-section {
+  padding: 0;
+  margin: 0;
+}
+
+.oilfree-wrapper {
+  display: flex;
+  align-items: center;     /* makes height equal to image */
+  justify-content: center;
+  gap: 60px;
+}
+
+/* IMAGE */
+.oilfree-img {
+  display: block;          /* removes bottom gap */
+  max-height: 420px;       /* control height */
+  height: auto;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* CONTENT */
+.oilfree-content {
+  max-width: 500px;
+}
+.promo-section,
+.oilfree-section {
+  padding: 40px 0;   /* space above & below section */
+}
+.promo-img,
+.oilfree-img {
+  max-height: 320px;   /* ↓ reduce this number more if needed */
+  height: auto;
+  width: auto;
+}
+@media (max-width: 768px) {
+
+  /* Stack sections vertically */
+  .promo-wrapper,
+  .oilfree-wrapper {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+    padding: 0 20px;
+  }
+
+  /* Reduce image size */
+  .promo-img,
+  .oilfree-img {
+    max-height: 300px;
+    width: 100%;
+  }
+
+  /* Adjust headings */
+  .promo-content h2,
+  .oilfree-content h2 {
+    font-size: 28px;
+  }
+
+  .promo-content h4,
+  .oilfree-content h4 {
+    font-size: 18px;
+  }
+
+  /* Paragraph */
+  .promo-content p,
+  .oilfree-content p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Button full width */
+  .promo-btn,
+  .oilfree-btn {
+    width: 100%;
+    max-width: 250px;
+  }
+
+}
+/* DESKTOP */
+.oilfree-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* IMAGE */
+.oilfree-img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  .oilfree-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  /* 🔥 THIS MOVES IMAGE ABOVE CONTENT */
+  .oilfree-img {
+    order: -1;
+  }
+
+}
+
+.oilfree-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;   /* 🔥 This centers it */
+  padding-left: 140px; /* 🔥 Matches promo spacing */
+}
