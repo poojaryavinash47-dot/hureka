@@ -8,41 +8,52 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
+  const [cartLoading, setCartLoading] = useState(false);
+
+  const mapItems = (items) =>
+    (items || []).map((item) => ({
+      ...item,
+      qty: item.qty || 1,
+      selected: item.selected ?? true,
+    }));
 
   useEffect(() => {
     if (!user) {
       setCartItems([]);
+      setCartLoading(false);
       return;
     }
 
     const fetchCart = async () => {
-      const res = await fetch("/api/cart", {
-        credentials: "include", // 🔥 IMPORTANT
-      });
-      const data = await res.json();
-      setCartItems(data.items || []);
+      setCartLoading(true);
+      try {
+        const res = await fetch("/api/cart", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setCartItems(mapItems(data.items));
+      } catch (error) {
+        console.error("Failed to fetch cart", error);
+        setCartItems([]);
+      } finally {
+        setCartLoading(false);
+      }
     };
 
     fetchCart();
   }, [user]);
 
- const addToCart = async (product) => {
-  console.log("ADDING:", product);
+  const addToCart = async (product) => {
+    const res = await fetch("/api/cart", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(product),
+    });
 
-  const res = await fetch("/api/cart", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(product),
-  });
-
-  console.log("STATUS:", res.status);
-
-  const data = await res.json();
-  console.log("RESPONSE:", data);
-
-  setCartItems(data.items || []);
-};
+    const data = await res.json();
+    setCartItems(mapItems(data.items));
+  };
 
   const updateQty = async (productId, qty) => {
     const res = await fetch("/api/cart", {
@@ -53,7 +64,7 @@ export function CartProvider({ children }) {
     });
 
     const data = await res.json();
-    setCartItems(data.items || []);
+    setCartItems(mapItems(data.items));
   };
 
   const removeFromCart = async (productId) => {
@@ -65,12 +76,36 @@ export function CartProvider({ children }) {
     });
 
     const data = await res.json();
-    setCartItems(data.items || []);
+    setCartItems(mapItems(data.items));
+  };
+
+  const toggleSelection = (productId) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId
+          ? { ...item, selected: !item.selected }
+          : item
+      )
+    );
+  };
+
+  const clearPurchasedItems = async (productIds = []) => {
+    for (const id of productIds) {
+      await removeFromCart(id);
+    }
   };
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, updateQty, removeFromCart }}
+      value={{
+        cartItems,
+        cartLoading,
+        addToCart,
+        updateQty,
+        removeFromCart,
+        toggleSelection,
+        clearPurchasedItems,
+      }}
     >
       {children}
     </CartContext.Provider>

@@ -57,13 +57,19 @@ export default function ProductCard({ product }) {
       return;
     }
 
-    addToCart({
-      productId: slug,
-      name: name,
-      price: Number(price),
-      image: image,
-      type: "product",
-    });
+    if (typeof window === "undefined") return;
+
+    sessionStorage.setItem(
+      "buyNowProduct",
+      JSON.stringify({
+        productId: slug,
+        name,
+        price: Number(price),
+        image,
+        qty: 1,
+        fromCart: false,
+      })
+    );
 
     router.push("/checkout");
   };

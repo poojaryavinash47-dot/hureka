@@ -11,6 +11,7 @@ export default function CartPage() {
     cartLoading,
     updateQty,
     removeFromCart,
+    toggleSelection,
   } = useCart();
 
   const { user, loading } = useAuth();
@@ -29,8 +30,10 @@ export default function CartPage() {
 
   if (!user) return null;
 
-  // ✅ TOTAL CALCULATION
-  const totalAmount = cartItems.reduce(
+  const selectedItems = cartItems.filter((item) => item.selected);
+  const hasSelectedItems = selectedItems.length > 0;
+
+  const subtotal = selectedItems.reduce(
     (total, item) => total + item.price * item.qty,
     0
   );
@@ -49,6 +52,15 @@ export default function CartPage() {
                 key={product.productId}
                 className="cart-product-card"
               >
+                <div className="cart-select">
+                  <input
+                    type="checkbox"
+                    checked={product.selected ?? true}
+                    onChange={() =>
+                      toggleSelection(product.productId)
+                    }
+                  />
+                </div>
                 {/* IMAGE */}
                 <div className="product-image">
                   <img
@@ -106,9 +118,25 @@ export default function CartPage() {
                   <div className="cart-actions">
                     <button
                       className="cart-buy-btn"
-                      onClick={() =>
-                        router.push("/checkout")
-                      }
+                      onClick={() => {
+                        if (typeof window === "undefined") return;
+
+                        const payload = {
+                          productId: product.productId,
+                          name: product.name,
+                          price: Number(product.price),
+                          image: product.image,
+                          qty: product.qty,
+                          fromCart: true,
+                        };
+
+                        sessionStorage.setItem(
+                          "buyNowProduct",
+                          JSON.stringify(payload)
+                        );
+
+                        router.push("/checkout");
+                      }}
                     >
                       Buy Now
                     </button>
@@ -130,7 +158,20 @@ export default function CartPage() {
           </div>
 
           {/* ✅ CART TOTAL SECTION */}
-        
+          <div className="cart-summary">
+            <div className="summary-row">
+              <span>Selected items ({selectedItems.length})</span>
+              <span>₹{subtotal}</span>
+            </div>
+
+            <button
+              className="proceed-checkout-btn"
+              disabled={!hasSelectedItems}
+              onClick={() => router.push("/checkout")}
+            >
+              Proceed to Checkout
+            </button>
+          </div>
         </>
       )}
     </section>
