@@ -106,31 +106,30 @@ const { user, loading, logout } = useAuth();
 
       {/* PROFILE */}
       <div className="profile-wrapper">
-        <button
-          className="profile-btn"
-          disabled={loading}
+        <div
+          className="profile-user"
           onClick={handleProfileClick}
         >
-          👤
-          {user && <span className="online-dot" />}
-        </button>
+          <button
+            type="button"
+            className="profile-btn"
+            disabled={loading}
+          >
+            👤
+            {user && <span className="online-dot" />}
+          </button>
+          {user && <span>{user.name}</span>}
+        </div>
 
         {profileOpen && (
           <div className="profile-dropdown">
             {user ? (
               <>
+               
                 <button
                   onClick={() => {
                     closeAll();
-                    router.push("/profile");
-                  }}
-                >
-                  👤 My Profile
-                </button>
-                <button
-                  onClick={() => {
-                    closeAll();
-                    router.push("/orders");
+                    router.push("/cart");
                   }}
                 >
                   📦 My Orders

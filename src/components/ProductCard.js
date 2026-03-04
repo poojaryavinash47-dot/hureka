@@ -6,7 +6,6 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import CartPopup from "./CartPopup";
-import LoginRequiredModal from "./LoginRequiredModal";
 
 export default function ProductCard({ product }) {
   const { name, category, image, price, mrp, discount, slug } = product;
@@ -16,11 +15,6 @@ export default function ProductCard({ product }) {
   const router = useRouter();
 
   const [showPopup, setShowPopup] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  const requireLogin = () => {
-    setShowLoginModal(true);
-  };
 
   /* ================= ADD TO CART ================= */
   const handleAddToCart = (e) => {
@@ -47,24 +41,27 @@ export default function ProductCard({ product }) {
 
     if (loading) return;
 
-    if (!user) {
-      requireLogin();
-      return;
-    }
+    const payload = {
+      productId: slug,
+      name,
+      price: Number(price),
+      image,
+      qty: 1,
+      fromCart: false,
+      type: "product",
+    };
 
     if (typeof window === "undefined") return;
 
-    sessionStorage.setItem(
-      "buyNowProduct",
-      JSON.stringify({
-        productId: slug,
-        name,
-        price: Number(price),
-        image,
-        qty: 1,
-        fromCart: false,
-      })
-    );
+    // Always store the Buy Now product for checkout
+    sessionStorage.setItem("buyNowProduct", JSON.stringify(payload));
+
+    if (!user) {
+      // Also mark it as pending so we can add it to DB cart after login
+      sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
+      router.push("/login");
+      return;
+    }
 
     router.push("/checkout");
   };
@@ -117,12 +114,6 @@ export default function ProductCard({ product }) {
       <CartPopup
         show={showPopup}
         onClose={() => setShowPopup(false)}
-      />
-
-      {/* LOGIN REQUIRED MODAL */}
-      <LoginRequiredModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
       />
     </>
   );

@@ -84,18 +84,27 @@ export default function ComboDetailsPage() {
   };
 
   const handleBuyNow = () => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    addToCart({
+    const payload = {
       productId: product.slug,
       name: product.name,
       price: product.price,
       image: product.image,
+      qty: 1,
+      fromCart: false,
       type: "combo",
-    });
+    };
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("buyNowProduct", JSON.stringify(payload));
+    }
+
+    if (!user) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
+      }
+      router.push("/login");
+      return;
+    }
 
     router.push("/checkout");
   };

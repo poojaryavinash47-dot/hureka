@@ -69,11 +69,6 @@ export default function ProductDetailsPage() {
   if (loading) return <p style={{ padding: 80 }}>Loading product...</p>;
   if (!product) return <p style={{ padding: 80 }}>Product not found</p>;
 
-  const requireLogin = () => {
-    alert("Please login to continue");
-    router.push("/login");
-  };
-
   const handleAddToCart = () => {
     addToCart({
       productId: product.slug,   // ✅ ALWAYS use slug
@@ -87,18 +82,27 @@ export default function ProductDetailsPage() {
   };
 
   const handleBuyNow = () => {
-    if (!user) {
-      requireLogin();
-      return;
-    }
-
-    addToCart({
+    const payload = {
       productId: product.slug,
       name: product.name,
       price: product.price,
       image: product.image,
+      qty: 1,
+      fromCart: false,
       type: "product",
-    });
+    };
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("buyNowProduct", JSON.stringify(payload));
+    }
+
+    if (!user) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
+      }
+      router.push("/login");
+      return;
+    }
 
     router.push("/checkout");
   };

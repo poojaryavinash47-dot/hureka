@@ -38,9 +38,24 @@ export default function LoginPage() {
       // ✅ sync auth state
       await refreshUser();
 
-      // ✅ after login, try to sync guest cart (if any)
       let redirected = false;
+      let pendingProduct = null;
+      let guestCartSynced = false;
+
       if (typeof window !== "undefined") {
+        // Read any pending Buy Now product stored before login
+        try {
+          const pendingRaw = window.sessionStorage.getItem(
+            "pendingBuyNow"
+          );
+          if (pendingRaw) {
+            pendingProduct = JSON.parse(pendingRaw);
+          }
+        } catch (err) {
+          console.error("Invalid pendingBuyNow data", err);
+        }
+
+        // First, try to sync any guest cart items
         try {
           const raw = window.localStorage.getItem("guest_cart");
           if (raw) {
@@ -55,18 +70,50 @@ export default function LoginPage() {
 
               if (syncRes.ok) {
                 window.localStorage.removeItem("guest_cart");
-                router.push("/cart");
-                redirected = true;
+                guestCartSynced = true;
               }
             }
           }
         } catch (err) {
           console.error("Guest cart sync failed", err);
         }
+
+        // If there was a pending Buy Now product, add it to the DB cart
+        if (pendingProduct) {
+          try {
+            const addRes = await fetch("/api/cart", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                productId: pendingProduct.productId,
+                name: pendingProduct.name,
+                price: pendingProduct.price,
+                image: pendingProduct.image,
+                type: pendingProduct.type || "product",
+              }),
+            });
+
+            if (addRes.ok) {
+              window.sessionStorage.removeItem("pendingBuyNow");
+              router.push("/checkout");
+              redirected = true;
+            }
+          } catch (err) {
+            console.error(
+              "Failed to add Buy Now item after login",
+              err
+            );
+          }
+        } else if (guestCartSynced) {
+          // No pending Buy Now, but guest cart was synced: go to cart
+          router.push("/cart");
+          redirected = true;
+        }
       }
 
       if (!redirected) {
-        // ✅ show success modal when there was no guest cart to sync
+        // ✅ show success modal when there was no special redirect
         setShowSuccess(true);
       }
     } catch (err) {

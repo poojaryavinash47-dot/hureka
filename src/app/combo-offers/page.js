@@ -52,13 +52,30 @@ export default function ComboOffersPage() {
     fetchCombos();
   }, []);
 
-  const requireLogin = () => {
-    setShowLoginModal(true);
-  };
-
   const handleAddToCart = (combo, redirect = false) => {
+    // BUY NOW path for guests: save product and redirect to login
+    if (!user && redirect) {
+      const payload = {
+        productId: combo.slug,
+        name: combo.name,
+        price: combo.price,
+        image: combo.image,
+        qty: 1,
+        fromCart: false,
+        type: "combo",
+      };
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("buyNowProduct", JSON.stringify(payload));
+        sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
+      }
+
+      router.push("/login");
+      return;
+    }
+
     if (!user) {
-      requireLogin();
+      setShowLoginModal(true);
       return;
     }
 

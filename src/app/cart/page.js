@@ -161,11 +161,6 @@ export default function CartPage() {
                       className="cart-buy-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!isAuthenticated) {
-                          router.push("/login");
-                          return;
-                        }
-
                         if (typeof window === "undefined") return;
 
                         const payload = {
@@ -175,12 +170,22 @@ export default function CartPage() {
                           image: product.image,
                           qty: product.qty,
                           fromCart: true,
+                          type: "product",
                         };
 
                         sessionStorage.setItem(
                           "buyNowProduct",
                           JSON.stringify(payload)
                         );
+
+                        if (!isAuthenticated) {
+                          sessionStorage.setItem(
+                            "pendingBuyNow",
+                            JSON.stringify(payload)
+                          );
+                          router.push("/login");
+                          return;
+                        }
 
                         router.push("/checkout");
                       }}
