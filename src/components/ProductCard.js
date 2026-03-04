@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import CartPopup from "./CartPopup";
+import LoginRequiredModal from "./LoginRequiredModal";
 
 export default function ProductCard({ product }) {
   const { name, category, image, price, mrp, discount, slug } = product;
@@ -15,6 +16,7 @@ export default function ProductCard({ product }) {
   const router = useRouter();
 
   const [showPopup, setShowPopup] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   /* ================= ADD TO CART ================= */
   const handleAddToCart = (e) => {
@@ -59,7 +61,7 @@ export default function ProductCard({ product }) {
     if (!user) {
       // Also mark it as pending so we can add it to DB cart after login
       sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
-      router.push("/login");
+      setShowLoginModal(true);
       return;
     }
 
@@ -114,6 +116,11 @@ export default function ProductCard({ product }) {
       <CartPopup
         show={showPopup}
         onClose={() => setShowPopup(false)}
+      />
+
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
     </>
   );

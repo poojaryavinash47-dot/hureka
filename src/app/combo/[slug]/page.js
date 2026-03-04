@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import CartPopup from "@/components/CartPopup";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { getProductBySlug } from "@/lib/wooCommerce";
 
 export default function ComboDetailsPage() {
@@ -17,6 +18,7 @@ export default function ComboDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -102,7 +104,7 @@ export default function ComboDetailsPage() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
       }
-      router.push("/login");
+      setShowLoginModal(true);
       return;
     }
 
@@ -207,6 +209,11 @@ export default function ComboDetailsPage() {
       <CartPopup
         show={showPopup}
         onClose={() => setShowPopup(false)}
+      />
+
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
     </section>
   );

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import CartPopup from "@/components/CartPopup";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { getProductBySlug } from "@/lib/wooCommerce";
 
 export default function ProductDetailsPage() {
@@ -19,6 +20,29 @@ export default function ProductDetailsPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   const [rating, setRating] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const fetchReviews = async (productId) => {
+    try {
+      const res = await fetch(`/api/reviews?productId=${productId}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        setReviews(data.reviews || []);
+        setAverageRating(data.averageRating || 0);
+        setReviewCount(data.reviewCount || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch reviews", err);
+    }
+  };
 
   useEffect(() => {
     if (!slug) return;
@@ -56,6 +80,8 @@ export default function ProductDetailsPage() {
         });
 
         setActiveTab("description");
+        // Load reviews for this product
+        fetchReviews(p.slug);
       } catch (error) {
         console.error("Failed to load product", error);
       } finally {
@@ -68,6 +94,50 @@ export default function ProductDetailsPage() {
 
   if (loading) return <p style={{ padding: 80 }}>Loading product...</p>;
   if (!product) return <p style={{ padding: 80 }}>Product not found</p>;
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    setReviewError("");
+
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (!reviewRating || !reviewComment.trim()) {
+      setReviewError("Please provide a rating and comment.");
+      return;
+    }
+
+    try {
+      setReviewSubmitting(true);
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.slug,
+          rating: reviewRating,
+          comment: reviewComment.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setReviewError(data.error || "Failed to submit review.");
+        return;
+      }
+
+      // Refresh reviews list after successful submission
+      setReviewRating(0);
+      setReviewComment("");
+      await fetchReviews(product.slug);
+    } catch (err) {
+      setReviewError("Failed to submit review.");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const handleAddToCart = () => {
     addToCart({
@@ -100,7 +170,7 @@ export default function ProductDetailsPage() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
       }
-      router.push("/login");
+      setShowLoginModal(true);
       return;
     }
 
@@ -203,13 +273,111 @@ export default function ProductDetailsPage() {
               {activeTab === "reviews" && (
                 <div className="reviews-section">
                   <h2>Customer Reviews</h2>
-                  <p>Be the first to write a review</p>
+
+                  <div className="reviews-summary">
+                    <div className="reviews-average">
+                      <span className="reviews-average-score">
+                        {averageRating.toFixed(1)}
+                      </span>
+                      <span className="reviews-stars">
+                        {"★★★★★".slice(0, Math.round(averageRating))}
+                        {"☆☆☆☆☆".slice(Math.round(averageRating))}
+                      </span>
+                      <span className="reviews-count">
+                        {reviewCount} review{reviewCount !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="write-review">
+                    <h3>Write a Review</h3>
+
+                    {!user && (
+                      <p className="reviews-login-hint">
+                        Please login to rate or write a review.
+                      </p>
+                    )}
+
+                    <form onSubmit={handleSubmitReview} className="review-form">
+                      <label className="review-label">Your Rating</label>
+                      <div className="star-input">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            className={
+                              star <= reviewRating ? "star-btn active" : "star-btn"
+                            }
+                            onClick={() => {
+                              if (!user) {
+                                setShowLoginModal(true);
+                                return;
+                              }
+                              setReviewRating(star);
+                            }}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+
+                      <label className="review-label">Your Review</label>
+                      <textarea
+                        className="review-textarea"
+                        rows={4}
+                        placeholder="Share your experience..."
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                      />
+
+                      {reviewError && (
+                        <p className="review-error">{reviewError}</p>
+                      )}
+
+                      <button
+                        type="submit"
+                        className="review-submit-btn"
+                        disabled={reviewSubmitting}
+                      >
+                        {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                      </button>
+                    </form>
+                  </div>
+
+                  <h3 className="review-section-title">Customer Reviews</h3>
+                  <div className="reviews-list">
+                    {reviews.length === 0 ? (
+                      <p className="no-reviews">
+                        No reviews yet. Be the first to review this product.
+                      </p>
+                    ) : (
+                      reviews.map((r) => (
+                        <div key={r._id} className="review-card">
+                          <div className="review-header">
+                            <span className="review-stars">
+                              {"★★★★★".slice(0, r.rating)}
+                              {"☆☆☆☆☆".slice(r.rating)}
+                            </span>
+                            <span className="review-username">{r.username}</span>
+                            <span className="review-date">
+                              {new Date(r.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="review-comment">{r.comment}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
 
       <CartPopup
         show={showPopup}

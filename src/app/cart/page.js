@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import {
   getGuestCart,
   updateGuestCartQuantity,
@@ -25,6 +26,8 @@ export default function CartPage() {
     if (typeof window === "undefined") return [];
     return getGuestCart();
   });
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   if (loading || cartLoading) {
     return <p style={{ padding: 40 }}>Loading cart...</p>;
@@ -183,7 +186,7 @@ export default function CartPage() {
                             "pendingBuyNow",
                             JSON.stringify(payload)
                           );
-                          router.push("/login");
+                          setShowLoginModal(true);
                           return;
                         }
 
@@ -238,6 +241,11 @@ export default function CartPage() {
           </div>
         </>
       )}
+
+      <LoginRequiredModal
+        show={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </section>
   );
 }

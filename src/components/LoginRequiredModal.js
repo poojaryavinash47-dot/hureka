@@ -10,19 +10,21 @@ export default function LoginRequiredModal({ show, onClose }) {
   return (
     <div className="login-modal-overlay" onClick={onClose}>
       <div
-        className="login-modal"
+        className="login-modal-card modal-open"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Please login to continue</h3>
-        <p>You need to be logged in to perform this action.</p>
+        <div className="login-modal-icon">🔒</div>
 
-        <div className="login-modal-actions">
-          <button className="btn-cancel" onClick={onClose}>
+        <h3 className="login-modal-title">Login Required</h3>
+        <p className="login-modal-text">Please login to continue.</p>
+
+        <div className="buttons-container">
+          <button className="cancel-btn" onClick={onClose}>
             Cancel
           </button>
 
           <button
-            className="btn-login"
+            className="login-btn"
             onClick={() => router.push("/login")}
           >
             Login
