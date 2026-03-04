@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
-  const { cartItems, cartLoading, clearPurchasedItems, removeFromCart } = useCart();
+  const { cartItems, cartLoading, clearPurchasedItems, removeFromCart, updateQty } = useCart();
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -83,6 +83,37 @@ export default function CheckoutPage() {
 
   const tax = Math.round(subtotal * 0.09);
   const total = subtotal + tax;
+
+  /* 🧮 Quantity Handlers */
+  const increaseQty = (productId, currentQty, shouldSyncWithCart) => {
+    const newQty = currentQty + 1;
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId ? { ...item, qty: newQty } : item
+      )
+    );
+
+    if (shouldSyncWithCart && typeof updateQty === "function") {
+      updateQty(productId, newQty);
+    }
+  };
+
+  const decreaseQty = (productId, currentQty, shouldSyncWithCart) => {
+    if (currentQty <= 1) return;
+
+    const newQty = currentQty - 1;
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId ? { ...item, qty: newQty } : item
+      )
+    );
+
+    if (shouldSyncWithCart && typeof updateQty === "function") {
+      updateQty(productId, newQty);
+    }
+  };
 
   /* 💳 Payment */
   const handlePayment = async () => {
@@ -183,15 +214,59 @@ export default function CheckoutPage() {
 
       {/* RIGHT SIDE */}
       <div className="checkout-right">
-        {items.map((item, index) => (
-          <div key={index} className="summary-item">
-            <img src={item.image} alt={item.name} />
-            <div>
-              <p>{item.name}</p>
-              <span>Qty {item.qty}</span>
+        {items.map((item, index) => {
+          // For regular cart checkout, sync quantity back to cart.
+          // For Buy-Now flow (coming from a "Buy" button), keep quantity local
+          // to the checkout state so it doesn't get reset from the cart.
+          const shouldSyncWithCart = !isBuyNowFlow;
+
+          return (
+            <div
+              key={item.productId || index}
+              className="product-summary"
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+              />
+
+              <div>
+                <p className="name">{item.name}</p>
+
+                <div className="qty-control">
+                  <button
+                    onClick={() =>
+                      decreaseQty(
+                        item.productId,
+                        item.qty,
+                        shouldSyncWithCart
+                      )
+                    }
+                    disabled={item.qty <= 1}
+                  >
+                    −
+                  </button>
+
+                  <span>{item.qty}</span>
+
+                  <button
+                    onClick={() =>
+                      increaseQty(
+                        item.productId,
+                        item.qty,
+                        shouldSyncWithCart
+                      )
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="price">₹{Number(item.price) * item.qty}</div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         <div className="summary-row">
           <span>Subtotal</span>

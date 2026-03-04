@@ -2222,23 +2222,24 @@ body {
 .qty-control {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin: 12px 0;
 }
 
 .qty-control button {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  background: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px; /* small square buttons, ecommerce style */
+  border: 1px solid #d0d0d0;
+  background: #f7f7f7;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .qty-control button:hover {
-  background: #f5f5f5;
+  background: #eaeaea;
+  border-color: #c0c0c0;
 }
 
 .qty-control span {
@@ -2250,7 +2251,7 @@ body {
 /* DISABLED MINUS BUTTON */
 .qty-control button:disabled {
   cursor: not-allowed;
-  opacity: 0.4;
+  opacity: 0.5;
   background: #f3f3f3;
   border-color: #e0e0e0;
 }
@@ -5307,4 +5308,75 @@ body {
 
 .checkbox-row span {
   line-height: 1.4;
+}
+/* CART SUMMARY CONTAINER */
+.cart-summary {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border: 1px solid #f0f0f0;
+  width: 100%;
+  max-width: 420px;
+  position: sticky;
+  top: 100px;
+}
+
+/* SUMMARY ROW */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+/* PRICE STYLE */
+.summary-row span:last-child {
+  font-weight: 600;
+  color: #000;
+  font-size: 18px;
+}
+
+/* CHECKOUT BUTTON */
+.proceed-checkout-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  background: #000;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* HOVER EFFECT */
+.proceed-checkout-btn:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* DISABLED BUTTON */
+.proceed-checkout-btn:disabled {
+  background: #dcdcdc;
+  color: #777;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .cart-summary {
+    max-width: 100%;
+    position: relative;
+    top: 0;
+  }
 }
