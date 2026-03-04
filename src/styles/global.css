@@ -27,6 +27,178 @@ body {
   font-weight: bold;
   font-size: 20px;
 }
+/* ================= BLOG SECTION ================= */
+.blog-section {
+  max-width: 1200px;
+  margin: 80px auto;
+  padding: 0 24px;
+}
+
+.blog-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.blog-intro {
+  max-width: 640px;
+  margin: 12px auto 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.blog-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.1);
+}
+
+.blog-image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.blog-content {
+  padding: 18px 18px 20px;
+}
+
+.blog-meta {
+  margin-bottom: 8px;
+}
+
+.blog-category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f3f7ff;
+  color: #3b5bdb;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.dot-icon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3b5bdb;
+}
+
+.blog-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 8px;
+}
+
+.blog-description {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.blog-readmore {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: none;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.blog-readmore:hover {
+  background: #222;
+}
+
+/* Blog detail */
+.blog-detail-page {
+  max-width: 900px;
+  margin: 80px auto;
+  padding: 0 24px 40px;
+}
+
+.blog-detail-header {
+  margin-bottom: 24px;
+}
+
+.blog-back-btn {
+  border: none;
+  background: transparent;
+  color: #555;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.blog-detail-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 8px;
+  color: #111;
+}
+
+.blog-detail-hero {
+  margin-bottom: 24px;
+}
+
+.blog-detail-image {
+  width: 100%;
+  border-radius: 18px;
+  object-fit: cover;
+}
+
+.blog-detail-body {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.8;
+}
+
+.blog-detail-body p + p {
+  margin-top: 14px;
+}
+
+@media (max-width: 1024px) {
+  .blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .blog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-detail-title {
+    font-size: 22px;
+  }
+}
 /* HERO SECTION */
 .hero {
   height: 80vh;
@@ -867,6 +1039,32 @@ body {
     background: transparent;
   }
 
+
+/* PAGES DROPDOWN – ORANGE STYLE */
+.pages-dropdown .dropdown-menu {
+  background: #e3914a;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+}
+
+.pages-dropdown .dropdown-menu li a {
+  color: #ffffff;
+  padding: 12px 20px;
+}
+
+.pages-dropdown .dropdown-menu li a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.pages-dropdown .dropdown-menu li:not(:last-child) a {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* utility class used for controlled open state on mobile */
+.dropdown-menu.show {
+  display: block;
+}
 }
 
 /* HAMBURGER */
@@ -2976,7 +3174,7 @@ body {
 ========================= */
 .about-banner {
   width: 100%;
-  height: 280px;
+  height: 320px;
   background-image: url("/about/hero-section.png");
   background-size: cover;
   background-position: center;

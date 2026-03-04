@@ -51,11 +51,15 @@ export default function CartPage() {
               <div
                 key={product.productId}
                 className="cart-product-card"
+                onClick={() =>
+                  router.push(`/product/${product.productId}`)
+                }
               >
                 <div className="cart-select">
                   <input
                     type="checkbox"
                     checked={product.selected ?? true}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={() =>
                       toggleSelection(product.productId)
                     }
@@ -87,7 +91,8 @@ export default function CartPage() {
                     Qty:
 
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (product.qty > 1) {
                           updateQty(
                             product.productId,
@@ -103,12 +108,13 @@ export default function CartPage() {
                     <span>{product.qty}</span>
 
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         updateQty(
                           product.productId,
                           product.qty + 1
                         )
-                      }
+                      }}
                     >
                       +
                     </button>
@@ -118,7 +124,8 @@ export default function CartPage() {
                   <div className="cart-actions">
                     <button
                       className="cart-buy-btn"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (typeof window === "undefined") return;
 
                         const payload = {
@@ -143,11 +150,10 @@ export default function CartPage() {
 
                     <button
                       className="cart-remove-btn"
-                      onClick={() =>
-                        removeFromCart(
-                          product.productId
-                        )
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromCart(product.productId);
+                      }}
                     >
                       Remove
                     </button>

@@ -1,15 +1,13 @@
+"use client";
+
+import HeroBanner from "@/components/HeroBanner";
+
 export default function ContactPage() {
   return (
-    <section className="contact-page">
+    <>
+      <HeroBanner title="CONTACT" breadcrumb="Home / Contact" />
 
-      {/* HERO */}
-      <div className="contact-hero">
-        <h1>Contact Us</h1>
-        <p>
-          We’re here to help you with your orders, products, and wellness
-          queries. Reach out anytime.
-        </p>
-      </div>
+      <section className="contact-page">
 
       {/* CONTACT CARDS */}
       <div className="contact-cards">
@@ -80,6 +78,7 @@ export default function ContactPage() {
         </div>
 
       </div>
-    </section>
+      </section>
+    </>
   );
 }

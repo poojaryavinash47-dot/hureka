@@ -1,15 +1,12 @@
 "use client";
 
+import HeroBanner from "@/components/HeroBanner";
+
 export default function AboutPage() {
   return (
     <>
       {/* FULL WIDTH ABOUT BANNER */}
-      <section className="about-banner">
-        <div className="about-banner-overlay">
-          <h1>ABOUT</h1>
-          <p>Home / About</p>
-        </div>
-      </section>
+      <HeroBanner title="ABOUT" breadcrumb="Home / About" />
 
       {/* PAGE CONTENT (CONSTRAINED) */}
       <section className="about-page">

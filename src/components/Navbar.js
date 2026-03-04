@@ -13,6 +13,7 @@ const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [pagesOpen, setPagesOpen] = useState(false);
 
   // ✅ hydration guard
   const [mounted, setMounted] = useState(false);
@@ -34,6 +35,7 @@ const handleProfileClick = () => {
     setMenuOpen(false);
     setShopOpen(false);
     setProfileOpen(false);
+    setPagesOpen(false);
   };
 
  
@@ -73,8 +75,41 @@ const handleProfileClick = () => {
 
         <li><Link href="/combo-offers" onClick={closeAll}>Combo Offers</Link></li>
         <li><Link href="/subscription-plans" onClick={closeAll}>Subscription Plans</Link></li>
-        <li><Link href="/about-us" onClick={closeAll}>About Us</Link></li>
-        <li><Link href="/contact" onClick={closeAll}>Contact</Link></li>
+
+        {/* PAGES DROPDOWN */}
+        <li
+          className={`dropdown pages-dropdown ${pagesOpen ? "open" : ""}`}
+          onMouseEnter={() => {
+            if (window.innerWidth > 768) setPagesOpen(true);
+          }}
+          onMouseLeave={() => {
+            if (window.innerWidth > 768) setPagesOpen(false);
+          }}
+        >
+          <button
+            type="button"
+            className="dropdown-toggle"
+            onClick={() => setPagesOpen((prev) => !prev)}
+          >
+            <span>Pages</span>
+            <span className="arrow">▼</span>
+          </button>
+
+          <ul className={`dropdown-menu pages-menu ${pagesOpen ? "show" : ""}`}>
+            <li>
+              <Link href="/blog" onClick={closeAll}>Blog</Link>
+            </li>
+            <li>
+              <Link href="/about-us" onClick={closeAll}>About Us</Link>
+            </li>
+            <li>
+              <Link href="/contact" onClick={closeAll}>Contact</Link>
+            </li>
+            <li>
+              <Link href="/faq" onClick={closeAll}>FAQ</Link>
+            </li>
+          </ul>
+        </li>
       </ul>
 
       {/* PROFILE */}
