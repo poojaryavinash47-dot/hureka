@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="footer">
@@ -9,14 +10,31 @@ export default function Footer() {
 
         {/* INFORMATION */}
         <div className="footer-column">
-          <h4>INFORMATION</h4>
+          <h4>USEFULL LINKS</h4>
           <ul>
-            <li>About Us</li>
-            <li>Terms & Conditions</li>
-            <li>Journals</li>
-            <li>Contact</li>
-            <li>Account Login</li>
-            <li>Subscription Settings</li>
+       <li>
+      <Link href="/">Home</Link>
+    </li>
+
+    <li>
+      <Link href="/shop/joint-care">Shop</Link>
+    </li>
+
+    <li>
+      <Link href="/combo-offers">Combo-offers</Link>
+    </li>
+
+    <li>
+      <Link href="/subscription-plan">Subscription Plan</Link>
+    </li>
+
+    <li>
+      <Link href="/about-us">About Us</Link>
+    </li>
+
+    <li>
+      <Link href="/contact">Contact</Link>
+    </li>
           </ul>
         </div>
 
