@@ -10,7 +10,7 @@ export const blogs = [
   {
     slug: "hair-care-nutrition-guide",
     title: "Hair Care: Nourish Your Hair from Within",
-    image: "/blog/blog2.png",
+    image: "/blog/haircare.jpg",
     category: "Hair Care",
     description:
       "Strong and healthy hair starts with the right nutrients. Discover vitamins and habits that support hair growth, strength, and shine.",

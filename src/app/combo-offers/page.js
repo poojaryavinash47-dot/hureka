@@ -1,192 +1,127 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import CartPopup from "@/components/CartPopup";
-import LoginRequiredModal from "@/components/LoginRequiredModal";
+import ProductCard from "@/components/ProductCard";
 import { getProducts } from "@/lib/wooCommerce";
 
 export default function ComboOffersPage() {
-  const { addToCart } = useCart();
-  const { user } = useAuth();
-  const router = useRouter();
-
-  const [showPopup, setShowPopup] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [combos, setCombos] = useState([]);
+  const [search, setSearch] = useState("");
+  const [price, setPrice] = useState("all");
+  const [products, setProducts] = useState([]);
+  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCombos = async () => {
+    const fetchProducts = async () => {
       try {
-        const products = await getProducts();
+        const allProducts = await getProducts();
 
-        const comboProducts = products
+        // ✅ FILTER ONLY COMBO-OFFERS PRODUCTS FROM WOOCOMMERCE
+        const comboProducts = allProducts
           .filter((p) =>
             p.categories?.some(
-              (cat) =>
-                cat.slug === "combo-offers" ||
-                cat.name.toLowerCase() === "combo offers"
+              (cat) => cat.slug === "combo-offers"
             )
           )
           .map((p) => ({
+            id: p.id,
             name: p.name,
             slug: p.slug,
             price: Number(p.price),
             mrp: Number(p.regular_price),
             image: p.images?.[0]?.src || "/placeholder.png",
-            description: p.short_description,
+            category: p.categories?.[0]?.name || "",
           }));
 
-        setCombos(comboProducts);
+        setProducts(comboProducts);
+        setFiltered(comboProducts);
       } catch (error) {
-        console.error("Failed to load combos", error);
+        console.error("Failed to load Combo Offers products", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCombos();
+    fetchProducts();
   }, []);
 
-  const handleAddToCart = (combo, redirect = false) => {
-    // BUY NOW path for guests: save product and redirect to login
-    if (!user && redirect) {
-      const payload = {
-        productId: combo.slug,
-        name: combo.name,
-        price: combo.price,
-        image: combo.image,
-        qty: 1,
-        fromCart: false,
-        type: "combo",
-      };
+  const handleSearch = () => {
+    let data = products.filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase())
+    );
 
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("buyNowProduct", JSON.stringify(payload));
-        sessionStorage.setItem("pendingBuyNow", JSON.stringify(payload));
-      }
-
-      router.push("/login");
-      return;
+    if (price === "below300") {
+      data = data.filter((p) => p.price < 300);
+    } else if (price === "300to500") {
+      data = data.filter(
+        (p) => p.price >= 300 && p.price <= 500
+      );
+    } else if (price === "above500") {
+      data = data.filter((p) => p.price > 500);
     }
 
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    addToCart({
-      productId: combo.slug,   // ✅ SLUG as unique ID
-      name: combo.name,
-      price: combo.price,
-      image: combo.image,
-      type: "combo",
-    });
-
-    if (redirect) {
-      router.push("/checkout");
-    } else {
-      setShowPopup(true);
-    }
+    setFiltered(data);
   };
 
   if (loading) {
-    return <p style={{ padding: "80px" }}>Loading combos...</p>;
+    return <p style={{ padding: "80px" }}>Loading products...</p>;
   }
 
   return (
-    <>
-      <section className="combo-page">
+    <section className="category-page">
+      <div className="category-container">
+        {/* LEFT SIDEBAR */}
+        <aside className="filter-sidebar">
+          <h3 className="filter-title">Filter</h3>
 
-        <div className="combo-header">
-          <h1>Combo Offers</h1>
-          <p>Save more with our carefully curated health combos</p>
+          {/* SEARCH */}
+          <div className="filter-block">
+            <label>Search</label>
+            <input
+              type="text"
+              placeholder="Search product..."
+              className="search-input"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {/* PRICE FILTER */}
+          <div className="filter-block">
+            <label>Price</label>
+            <select
+              className="price-select"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="below300">Below ₹300</option>
+              <option value="300to500">₹300 – ₹500</option>
+              <option value="above500">Above ₹500</option>
+            </select>
+          </div>
+
+          <button
+            onClick={handleSearch}
+            className="filter-search-btn"
+          >
+            Search
+          </button>
+        </aside>
+
+        {/* PRODUCTS */}
+        <div className="products-area">
+          <div className="products-grid">
+            {filtered.length > 0 ? (
+              filtered.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))
+            ) : (
+              <p>No Combo Offers products found</p>
+            )}
+          </div>
         </div>
-
-        <div className="combo-grid">
-          {combos.length > 0 ? (
-            combos.map((combo) => (
-              <Link
-                key={combo.slug}
-                href={`/combo/${combo.slug}`}
-                className="combo-link"
-              >
-                <div className="combo-card">
-
-                  <div className="combo-image">
-                    <img src={combo.image} alt={combo.name} />
-                  </div>
-
-                  <div className="combo-info">
-                    <h3>{combo.name}</h3>
-
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: combo.description,
-                      }}
-                    />
-
-                    <div className="combo-price">
-                      <span className="combo-final">₹{combo.price}</span>
-
-                      {combo.mrp && (
-                        <>
-                          <span className="combo-mrp">₹{combo.mrp}</span>
-                          <span className="combo-save">
-                            Save ₹{combo.mrp - combo.price}
-                          </span>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="combo-actions">
-                      <button
-                        className="combo-btn combo-cart"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleAddToCart(combo);
-                        }}
-                      >
-                        Add to Cart
-                      </button>
-
-                      <button
-                        className="combo-btn combo-buy"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleAddToCart(combo, true);
-                        }}
-                      >
-                        Buy Now
-                      </button>
-                    </div>
-
-                  </div>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <p>No combo offers available</p>
-          )}
-        </div>
-
-        <CartPopup
-          show={showPopup}
-          onClose={() => setShowPopup(false)}
-        />
-
-      </section>
-
-      <LoginRequiredModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-    </>
+      </div>
+    </section>
   );
 }

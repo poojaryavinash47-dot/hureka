@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import AuthSuccessModal from "@/components/AuthSuccessModal";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false); // ✅ modal state
+  const [redirectPath, setRedirectPath] = useState("/");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,6 +43,8 @@ export default function LoginPage() {
       let redirected = false;
       let pendingProduct = null;
       let guestCartSynced = false;
+
+      let nextRoute = "/";
 
       if (typeof window !== "undefined") {
         // Read any pending Buy Now product stored before login
@@ -107,6 +111,7 @@ export default function LoginPage() {
           }
         } else if (guestCartSynced) {
           // No pending Buy Now, but guest cart was synced: go to cart
+          nextRoute = "/cart";
           router.push("/cart");
           redirected = true;
         }
@@ -114,6 +119,7 @@ export default function LoginPage() {
 
       if (!redirected) {
         // ✅ show success modal when there was no special redirect
+        setRedirectPath(nextRoute);
         setShowSuccess(true);
       }
     } catch (err) {
@@ -160,22 +166,16 @@ export default function LoginPage() {
         </p>
       </section>
 
-      {/* ✅ SUCCESS MODAL */}
-      {showSuccess && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>🎉 Login Successful!</h2>
-            <p>Welcome back to HUREKA.</p>
-
-            <button
-              className="modal-btn"
-              onClick={() => router.push("/")}
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-      )}
+      <AuthSuccessModal
+        show={showSuccess}
+        title="Login Successful"
+        message="Welcome back to HUREKA."
+        buttonLabel="Continue"
+        onContinue={() => {
+          setShowSuccess(false);
+          router.push(redirectPath || "/");
+        }}
+      />
     </>
   );
 }
