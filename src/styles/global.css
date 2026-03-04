@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap");
 
 * {
   margin: 0;
@@ -10,6 +11,26 @@ html,
 body {
   width: 100%;
   overflow-x: hidden;
+}
+
+/* Homepage typography: use hero font (Poppins) consistently */
+.home-page,
+.home-page h1,
+.home-page h2,
+.home-page h3,
+.home-page h4,
+.home-page h5,
+.home-page h6,
+.home-page p,
+.home-page span,
+.home-page button,
+.home-page a,
+.home-page li,
+.home-page label,
+.home-page input,
+.home-page select,
+.home-page textarea {
+  font-family: "Poppins", sans-serif;
 }
 .navbar {
   display: flex;
@@ -32,13 +53,19 @@ body {
 /* ================= BLOG SECTION ================= */
 .blog-section {
   max-width: 1200px;
-  margin: 80px auto;
+  margin: 50px auto;
   padding: 0 24px;
 }
 
 .blog-header {
   text-align: center;
   margin-bottom: 40px;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
 }
 
 .product-actions {
@@ -116,15 +143,15 @@ body {
 }
 
 .blog-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 600;
   color: #111;
   margin-bottom: 8px;
 }
 
 .blog-description {
-  font-size: 13px;
-  color: #555;
+  font-size: 14px;
+  color: #666;
   line-height: 1.6;
   margin-bottom: 14px;
 }
@@ -143,6 +170,74 @@ body {
 
 .blog-readmore:hover {
   background: #222;
+}
+
+/* Home page Blog Preview */
+.home-blog-section {
+  background: #6f9f97;
+  padding: 10px 0;
+}
+
+.blog-preview-section {
+  max-width: 1200px;
+  margin: 80px auto;
+  padding: 0 24px;
+}
+
+.blog-preview-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.home-blog-section .section-subtitle,
+.home-blog-section .section-title,
+.home-blog-section p {
+  color: #ffffff;
+}
+
+.blog-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.blog-card {
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.25s ease;
+}
+
+.blog-card img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.blog-card:hover {
+  transform: translateY(-6px);
+}
+
+.blog-preview-footer {
+  text-align: center;
+}
+
+.view-more-btn {
+  background: #e38b3a;
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.view-more-btn:hover {
+  background: #d47c2b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(227, 139, 58, 0.3);
 }
 
 /* Blog detail */
@@ -196,6 +291,10 @@ body {
   .blog-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .blog-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -203,8 +302,16 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .blog-preview-grid {
+    grid-template-columns: 1fr;
+  }
+
   .blog-detail-title {
     font-size: 22px;
+  }
+  
+  .hero-title {
+    font-size: 34px;
   }
 }
 /* HERO SECTION */
@@ -217,11 +324,18 @@ body {
 }
 
 .hero-content {
-  max-width: 500px;
+  max-width: 700px;
+  padding: 80px 0;
 }
 
-.hero-content h1 {
-  font-size: 48px;
+.hero-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  max-width: 700px;
   margin-bottom: 16px;
 }
 
@@ -231,13 +345,24 @@ body {
   color: #444;
 }
 
-.hero-content button {
-  padding: 12px 28px;
-  font-size: 16px;
+.hero-shop-btn {
+  background: #e38b3a;
+  color: #ffffff;
+  padding: 14px 32px;
+  border-radius: 8px;
   border: none;
-  background: black;
-  color: white;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  letter-spacing: 1px;
   cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.25s ease;
+}
+
+.hero-shop-btn:hover {
+  background: #d67f2e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
 }
 /* ===== LATEST PRODUCTS ===== */
 .products-grid {
@@ -328,7 +453,7 @@ body {
 }
 /* ===== PROMO SECTION ===== */
 .promo-section {
-  background: #eaf3ef;
+  background: #ffffff;
   padding: 20px 60px;
   padding-top: 40px;
 /* optional */
@@ -419,9 +544,9 @@ body {
     height: 60vh;
     padding: 0 20px;
   }
-
-  .hero-content h1 {
-    font-size: 32px;
+  
+  .hero-title {
+    font-size: 48px;
   }
 
   .hero-content p {
@@ -937,7 +1062,8 @@ body {
 .menu {
   justify-self: center;
   display: flex;
-  gap: 40px;
+  gap: 28px;
+  align-items: center;
   list-style: none;
 }
 
@@ -953,6 +1079,29 @@ body {
   text-decoration: none;
   cursor: pointer;
   padding-bottom: 4px;
+}
+
+/* Top-level navbar links (including dropdown parents) */
+.navbar .menu > li > a,
+.navbar .menu > li > .dropdown-toggle,
+.navbar .menu > li > .dropdown-toggle span {
+  font-family: "Poppins", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  padding: 10px 16px;
+  transition: color 0.25s ease;
+}
+
+.navbar .menu > li > a.active {
+  color: #2e3a46;
+  font-weight: 700;
+}
+
+.navbar .menu > li > a:hover {
+  color: #2e3a46;
 }
 
 /* HOVER UNDERLINE */
@@ -971,6 +1120,19 @@ body {
 .menu a:hover::after,
 .menu span:hover::after {
   width: 100%;
+}
+
+/* Desktop-specific navbar spacing tweaks */
+@media (min-width: 769px) {
+  .navbar .menu {
+    gap: 18px; /* slightly tighter spacing between menu items */
+  }
+
+  .navbar .menu > li > a,
+  .navbar .menu > li > .dropdown-toggle,
+  .navbar .menu > li > .dropdown-toggle span {
+    padding: 6px 10px; /* compact padding as per spec */
+  }
 }
 
 /* DROPDOWN */
@@ -1758,6 +1920,13 @@ body {
 .section-title {
   margin-bottom: 32px; /* 🔥 gap between title & products */
 }
+
+/* Latest products grid / slider */
+.latest-products-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
 @media (max-width: 768px) {
   .latest-products {
     padding: 40px 20px;
@@ -1765,6 +1934,23 @@ body {
 
   .section-title {
     margin-bottom: 24px;
+  }
+
+  .latest-products-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+  }
+
+  .latest-products-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .latest-products-container .product-card {
+    min-width: 220px;
+    flex-shrink: 0;
   }
 }
 .plans-hero {
@@ -4806,7 +4992,7 @@ body {
   justify-self: center;
   display: flex;
   align-items: center;
-  gap: 42px;
+  gap: 20px;
   list-style: none;
 }
 
@@ -4814,17 +5000,8 @@ body {
   display: flex;
   align-items: center;
 }
-
-.menu a,
-.dropdown-toggle {
-  font-size: 15px;
-  font-weight: 500;
-  color: #3a2f2f;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
+/* base nav text styling stays the same elsewhere; 
+   spacing tweaks are applied with navbar-scoped rules below */
 
 /* ---------- RIGHT ICONS ---------- */
 .nav-right {
@@ -4906,19 +5083,48 @@ body {
     height: 72px;
   }
 
-  .menu {
+  .navbar .menu {
     position: absolute;
     top: 72px;
     left: 0;
     width: 100%;
     background: #fff3e8;
     flex-direction: column;
-    padding: 20px 0;
+    align-items: flex-start; /* left align items */
+    gap: 10px; /* vertical spacing between mobile items */
+    padding: 0 0 20px; /* remove top padding to eliminate gap under navbar */
     display: none;
   }
 
-  .menu.menu-open {
+  .navbar .menu.menu-open {
     display: flex;
+  }
+
+  /* Ensure all mobile navbar items align flush left */
+  .navbar .menu li {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start; /* label + arrow start from same left edge */
+  }
+
+  .navbar .menu li a,
+  .navbar .menu li button,
+  .navbar .menu li .dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;              /* reduced arrow spacing */
+    padding: 16px 20px;    /* consistent touch target & left margin */
+    width: 100%;
+    text-align: left;
+  }
+.navbar .menu li .dropdown-toggle{
+    padding: 16px 0px;
+
+}
+  .navbar .menu li .dropdown-toggle span,
+  .navbar .menu li .dropdown-toggle svg {
+    margin-left: 4px;      /* slight offset for arrow/icon */
   }
 
   .nav-right {
@@ -5045,11 +5251,12 @@ body {
   position: relative;
 }
 
-/* DROPDOWN MENU */
+/* DROPDOWN MENU (base) */
 .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
+  transform: none;
   background: #fff5ea; /* your beige color */
   min-width: 220px;
   padding: 10px 0;
@@ -5084,7 +5291,9 @@ body {
   }
 
   .dropdown-menu {
-    position: static;   /* stack UNDER Shop */
+    position: static;   /* stack UNDER Shop/Pages */
+    left: auto;
+    transform: none;
     box-shadow: none;
     border-radius: 0;
     background: transparent;
@@ -5096,9 +5305,9 @@ body {
   }
 }
 .dropdown-toggle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px; /* space between text and arrow (desktop) */
 }
 /* =========================
    SHOP DROPDOWN – FINAL FIX
@@ -5115,17 +5324,23 @@ body {
   border: none;
   font: inherit;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px; /* desktop gap between label and arrow */
   color: #3a2f2f;
 }
 
-/* Dropdown menu (desktop default) */
+.dropdown-toggle span {
+  margin-left: 2px; /* clean but tight separation from label */
+}
+
+.dropdown-toggle .arrow {
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+/* Dropdown menu (desktop default – refine look) */
 .dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
   background: #fff6ef;
   min-width: 240px;
   border-radius: 14px;
@@ -5136,10 +5351,15 @@ body {
   z-index: 1000;
 }
 
-/* Desktop hover */
+/* Desktop hover + center under parent in navbar */
 @media (min-width: 769px) {
   .dropdown:hover .dropdown-menu {
     display: block;
+  }
+
+  .navbar li .dropdown-menu {
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
@@ -5193,7 +5413,7 @@ body {
     display: inline-flex;        /* ✅ shrink to content */
     align-items: center;
     justify-content: flex-start; /* ✅ keep arrow near text */
-    gap: 6px;                    /* ✅ space between Shop & arrow */
+    gap: 4px;                    /* ✅ tighter space between Shop & arrow */
     padding: 14px 20px;          /* keep touch-friendly padding */
   }
 }
@@ -5249,6 +5469,19 @@ body {
   letter-spacing: 0.2px;
   color: #3a2f2f;
 }
+/* Navbar-specific arrow + label spacing (desktop + mobile) */
+.navbar .menu li a,
+.navbar .menu li button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; /* reduce space between text and arrow */
+}
+
+.navbar .menu li span,
+.navbar .menu li svg {
+  margin-left: 2px;
+  font-size: 12px;
+}
 /* Hover */
 .menu li a:hover,
 .dropdown-toggle:hover {
@@ -5273,6 +5506,19 @@ body {
 
 .menu li a:hover::after {
   width: 100%;
+}
+/* ===============================
+   MOBILE NAVBAR TEXT COLOR
+   Ensure good contrast on light background
+================================ */
+@media (max-width: 768px) {
+  .navbar .menu > li > a,
+  .menu li a,
+  .menu li button,
+  .dropdown-toggle,
+  .dropdown-toggle span {
+    color: #222 !important;
+  }
 }
 /* ===============================
    SHOP DROPDOWN – DESKTOP PRO STYLE
@@ -5554,6 +5800,7 @@ body {
 .oilfree-section {
   padding: 0;
   margin: 0;
+  background: #ffffff;
 }
 
 .oilfree-wrapper {
@@ -5666,6 +5913,36 @@ body {
   max-width: 1200px;
   margin: 0 auto;   /* 🔥 This centers it */
   padding-left: 140px; /* 🔥 Matches promo spacing */
+}
+@media (max-width: 768px) {
+  .oilfree-section {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .oilfree-wrapper {
+    padding-left: 0;
+    padding-right: 0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .oilfree-img {
+    margin: 0 auto;
+  }
+
+  .oilfree-content h2,
+  .oilfree-content h4,
+  .oilfree-content p {
+    text-align: center;
+  }
+
+  .oilfree-btn {
+    display: inline-block;
+    margin: 0 auto;
+  }
 }
 .checkout-page {
   display: grid;

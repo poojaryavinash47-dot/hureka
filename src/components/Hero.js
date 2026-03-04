@@ -1,10 +1,14 @@
+import Link from "next/link";
+
 export default function Hero() {
   return (
     <section className="hero">
       <div className="hero-content">
-        <h1>Premium Cosmetics</h1>
-<p>Thoughtfully crafted skincare essentials to nourish, protect, and enhance your natural beauty.</p>
-        <button>Shop Now</button>
+        <h1 className="hero-title">Premium Wellness Supplements</h1>
+       
+        <Link href="/shop/joint-care">
+          <button className="hero-shop-btn">SHOP NOW</button>
+        </Link>
       </div>
     </section>
   );
