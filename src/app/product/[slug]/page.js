@@ -74,12 +74,7 @@ export default function ProductDetailsPage() {
     router.push("/login");
   };
 
-  const handleAddToCart = (redirect = false) => {
-    if (!user) {
-      requireLogin();
-      return;
-    }
-
+  const handleAddToCart = () => {
     addToCart({
       productId: product.slug,   // ✅ ALWAYS use slug
       name: product.name,
@@ -88,11 +83,24 @@ export default function ProductDetailsPage() {
       type: "product",
     });
 
-    if (redirect) {
-      router.push("/checkout");
-    } else {
-      setShowPopup(true);
+    setShowPopup(true);
+  };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      requireLogin();
+      return;
     }
+
+    addToCart({
+      productId: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: "product",
+    });
+
+    router.push("/checkout");
   };
 
   return (
@@ -128,13 +136,13 @@ export default function ProductDetailsPage() {
           )}
 
           <div className="actions">
-            <button onClick={() => handleAddToCart(false)}>
+            <button onClick={handleAddToCart}>
               Add to Cart
             </button>
 
             <button
               className="buy-now"
-              onClick={() => handleAddToCart(true)}
+              onClick={handleBuyNow}
             >
               Buy Now
             </button>

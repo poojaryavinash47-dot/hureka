@@ -19,18 +19,10 @@ const { user, loading, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
-// ⬇️ add this INSIDE Navbar component (above return)
-const handleProfileClick = () => {
-  console.log("PROFILE CLICKED", { user, loading });
-
-  if (loading) return;
-
-  if (!user) {
-    router.push("/login");
-  } else {
-    setProfileOpen(prev => !prev);
-  }
-};
+  const handleProfileClick = () => {
+    if (loading) return;
+    setProfileOpen((prev) => !prev);
+  };
   const closeAll = () => {
     setMenuOpen(false);
     setShopOpen(false);
@@ -113,32 +105,77 @@ const handleProfileClick = () => {
       </ul>
 
       {/* PROFILE */}
-   <div className="profile-wrapper">
-  <button
-    className="profile-btn"
-    disabled={loading}
-    onClick={handleProfileClick}
-  >
-    👤
-    {user && <span className="online-dot" />}
-  </button>
+      <div className="profile-wrapper">
+        <button
+          className="profile-btn"
+          disabled={loading}
+          onClick={handleProfileClick}
+        >
+          👤
+          {user && <span className="online-dot" />}
+        </button>
 
-  {user && profileOpen && (
-    <div className="profile-dropdown">
-      <Link href="/cart" onClick={closeAll}>🛒 View Cart</Link>
-
-      <button
-        onClick={() => {
-          logout();
-          closeAll();
-          router.push("/login");
-        }}
-      >
-        🚪 Logout
-      </button>
-    </div>
-  )}
-</div>
+        {profileOpen && (
+          <div className="profile-dropdown">
+            {user ? (
+              <>
+                <button
+                  onClick={() => {
+                    closeAll();
+                    router.push("/profile");
+                  }}
+                >
+                  👤 My Profile
+                </button>
+                <button
+                  onClick={() => {
+                    closeAll();
+                    router.push("/orders");
+                  }}
+                >
+                  📦 My Orders
+                </button>
+                <button
+                  onClick={() => {
+                    closeAll();
+                    router.push("/cart");
+                  }}
+                >
+                  🛒 Cart
+                </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    closeAll();
+                    router.push("/login");
+                  }}
+                >
+                  🚪 Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => {
+                    closeAll();
+                    router.push("/login");
+                  }}
+                >
+                  🔐 Login
+                </button>
+                <button
+                  onClick={() => {
+                    closeAll();
+                    router.push("/cart");
+                  }}
+                >
+                  🛒 View Cart
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* HAMBURGER */}
       <div

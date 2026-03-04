@@ -38,8 +38,37 @@ export default function LoginPage() {
       // ✅ sync auth state
       await refreshUser();
 
-      // ✅ show success modal
-      setShowSuccess(true);
+      // ✅ after login, try to sync guest cart (if any)
+      let redirected = false;
+      if (typeof window !== "undefined") {
+        try {
+          const raw = window.localStorage.getItem("guest_cart");
+          if (raw) {
+            const guestItems = JSON.parse(raw);
+            if (Array.isArray(guestItems) && guestItems.length > 0) {
+              const syncRes = await fetch("/api/cart/sync", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ items: guestItems }),
+              });
+
+              if (syncRes.ok) {
+                window.localStorage.removeItem("guest_cart");
+                router.push("/cart");
+                redirected = true;
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Guest cart sync failed", err);
+        }
+      }
+
+      if (!redirected) {
+        // ✅ show success modal when there was no guest cart to sync
+        setShowSuccess(true);
+      }
     } catch (err) {
       setError("Server error. Please try again.");
     } finally {

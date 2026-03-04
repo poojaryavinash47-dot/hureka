@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { addItemToGuestCart } from "@/lib/guestCart";
 
 const CartContext = createContext(null);
 
@@ -44,6 +45,12 @@ export function CartProvider({ children }) {
   }, [user]);
 
   const addToCart = async (product) => {
+    // Guest user: store in localStorage guest cart
+    if (!user) {
+      addItemToGuestCart(product);
+      return;
+    }
+
     const res = await fetch("/api/cart", {
       method: "POST",
       credentials: "include",

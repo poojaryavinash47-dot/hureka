@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import {
+  getGuestCart,
+  updateGuestCartQuantity,
+  removeGuestCartItem,
+} from "@/lib/guestCart";
 
 export default function CartPage() {
   const {
@@ -16,25 +21,36 @@ export default function CartPage() {
 
   const { user, loading } = useAuth();
   const router = useRouter();
-
-  /* 🔒 PROTECT CART PAGE */
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [user, loading, router]);
+  const [guestItems, setGuestItems] = useState(() => {
+    if (typeof window === "undefined") return [];
+    return getGuestCart();
+  });
 
   if (loading || cartLoading) {
     return <p style={{ padding: 40 }}>Loading cart...</p>;
   }
 
-  if (!user) return null;
+  const isAuthenticated = !!user;
 
-  const selectedItems = cartItems.filter((item) => item.selected);
+  const normalizedGuestItems = guestItems.map((item) => ({
+    productId: item.productId,
+    name: item.title,
+    price: item.price,
+    qty: item.quantity || 1,
+    image: item.image,
+    selected: true,
+  }));
+
+  const itemsToRender = isAuthenticated ? cartItems : normalizedGuestItems;
+
+  const selectedItems = isAuthenticated
+    ? cartItems.filter((item) => item.selected)
+    : itemsToRender;
+
   const hasSelectedItems = selectedItems.length > 0;
 
   const subtotal = selectedItems.reduce(
-    (total, item) => total + item.price * item.qty,
+    (total, item) => total + item.price * (item.qty || 1),
     0
   );
 
@@ -42,12 +58,12 @@ export default function CartPage() {
     <section className="cart-page">
       <h1>Your Cart</h1>
 
-      {cartItems.length === 0 ? (
+      {itemsToRender.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
         <>
           <div className="cart-grid">
-            {cartItems.map((product) => (
+            {itemsToRender.map((product) => (
               <div
                 key={product.productId}
                 className="cart-product-card"
@@ -55,16 +71,18 @@ export default function CartPage() {
                   router.push(`/product/${product.productId}`)
                 }
               >
-                <div className="cart-select">
-                  <input
-                    type="checkbox"
-                    checked={product.selected ?? true}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={() =>
-                      toggleSelection(product.productId)
-                    }
-                  />
-                </div>
+                {isAuthenticated && (
+                  <div className="cart-select">
+                    <input
+                      type="checkbox"
+                      checked={product.selected ?? true}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() =>
+                        toggleSelection(product.productId)
+                      }
+                    />
+                  </div>
+                )}
                 {/* IMAGE */}
                 <div className="product-image">
                   <img
@@ -93,11 +111,19 @@ export default function CartPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (product.qty > 1) {
+                        if (product.qty <= 1) return;
+
+                        if (isAuthenticated) {
                           updateQty(
                             product.productId,
                             product.qty - 1
                           );
+                        } else {
+                          const updated = updateGuestCartQuantity(
+                            product.productId,
+                            product.qty - 1
+                          );
+                          setGuestItems(updated);
                         }
                       }}
                       disabled={product.qty <= 1}
@@ -110,10 +136,19 @@ export default function CartPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateQty(
-                          product.productId,
-                          product.qty + 1
-                        )
+
+                        if (isAuthenticated) {
+                          updateQty(
+                            product.productId,
+                            product.qty + 1
+                          );
+                        } else {
+                          const updated = updateGuestCartQuantity(
+                            product.productId,
+                            product.qty + 1
+                          );
+                          setGuestItems(updated);
+                        }
                       }}
                     >
                       +
@@ -126,6 +161,11 @@ export default function CartPage() {
                       className="cart-buy-btn"
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!isAuthenticated) {
+                          router.push("/login");
+                          return;
+                        }
+
                         if (typeof window === "undefined") return;
 
                         const payload = {
@@ -152,7 +192,14 @@ export default function CartPage() {
                       className="cart-remove-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeFromCart(product.productId);
+                        if (isAuthenticated) {
+                          removeFromCart(product.productId);
+                        } else {
+                          const updated = removeGuestCartItem(
+                            product.productId
+                          );
+                          setGuestItems(updated);
+                        }
                       }}
                     >
                       Remove
@@ -173,7 +220,13 @@ export default function CartPage() {
             <button
               className="proceed-checkout-btn"
               disabled={!hasSelectedItems}
-              onClick={() => router.push("/checkout")}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  router.push("/login");
+                } else {
+                  router.push("/checkout");
+                }
+              }}
             >
               Proceed to Checkout
             </button>

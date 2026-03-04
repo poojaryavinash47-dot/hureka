@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import CartPopup from "@/components/CartPopup";
 import { getProductBySlug } from "@/lib/wooCommerce";
 
@@ -10,6 +11,7 @@ export default function ComboDetailsPage() {
   const { slug } = useParams();
   const router = useRouter();
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function ComboDetailsPage() {
   }
 
   // ✅ CONSISTENT ADD TO CART
-  const handleAddToCart = (redirect = false) => {
+  const handleAddToCart = () => {
     addToCart({
       productId: product.slug,   // ✅ use slug as unique ID
       name: product.name,
@@ -78,11 +80,24 @@ export default function ComboDetailsPage() {
       type: "combo",
     });
 
-    if (redirect) {
-      router.push("/checkout");
-    } else {
-      setShowPopup(true);
+    setShowPopup(true);
+  };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      router.push("/login");
+      return;
     }
+
+    addToCart({
+      productId: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: "combo",
+    });
+
+    router.push("/checkout");
   };
 
   return (
@@ -120,14 +135,14 @@ export default function ComboDetailsPage() {
           <div className="combo-actions">
             <button
               className="combo-cart-btn"
-              onClick={() => handleAddToCart(false)}
+              onClick={handleAddToCart}
             >
               Add to Cart
             </button>
 
             <button
               className="combo-buy-btn"
-              onClick={() => handleAddToCart(true)}
+              onClick={handleBuyNow}
             >
               Buy Now
             </button>

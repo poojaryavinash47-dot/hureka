@@ -29,11 +29,6 @@ export default function ProductCard({ product }) {
 
     if (loading) return;
 
-    if (!user) {
-      requireLogin();
-      return;
-    }
-
     addToCart({
       productId: slug,              // ✅ UNIQUE STRING ID
       name: name,
