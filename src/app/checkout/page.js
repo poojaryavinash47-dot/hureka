@@ -11,9 +11,24 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   const [processing, setProcessing] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [initializingItems, setInitializingItems] = useState(true);
   const [isBuyNowFlow, setIsBuyNowFlow] = useState(false);
+
+  const [form, setForm] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    apartment: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
+
+  const [saveAddress, setSaveAddress] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   /* 🔐 Protect Route */
   useEffect(() => {
@@ -21,6 +36,77 @@ export default function CheckoutPage() {
       router.replace("/login");
     }
   }, [user, loading, router]);
+
+  // Prefill address from saved data (if any)
+  useEffect(() => {
+    if (loading || !user) return;
+
+    let cancelled = false;
+
+    const loadAddress = async () => {
+      try {
+        const res = await fetch("/api/address/user", {
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          // even on error, fall back to basic user info
+          if (!cancelled) {
+            setForm((prev) => ({
+              ...prev,
+              email: prev.email || user.email || "",
+              firstName:
+                prev.firstName || (user.name ? user.name.split(" ")[0] : ""),
+            }));
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (data?.address) {
+          const a = data.address;
+          setForm((prev) => ({
+            ...prev,
+            email: a.email || prev.email || user.email || "",
+            firstName: a.firstName || prev.firstName || "",
+            lastName: a.lastName || prev.lastName || "",
+            address: a.address || prev.address || "",
+            apartment: a.apartment || prev.apartment || "",
+            city: a.city || prev.city || "",
+            state: a.state || prev.state || "",
+            pincode: a.pincode || prev.pincode || "",
+          }));
+          setSaveAddress(true);
+        } else {
+          // no saved address, at least prefill email / first name
+          setForm((prev) => ({
+            ...prev,
+            email: prev.email || user.email || "",
+            firstName:
+              prev.firstName || (user.name ? user.name.split(" ")[0] : ""),
+          }));
+        }
+      } catch (err) {
+        console.error("Load address error", err);
+        setForm((prev) => ({
+          ...prev,
+          email: prev.email || user.email || "",
+          firstName:
+            prev.firstName || (user.name ? user.name.split(" ")[0] : ""),
+        }));
+      } finally {
+        if (!cancelled) setAddressLoading(false);
+      }
+    };
+
+    loadAddress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, user]);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -84,6 +170,14 @@ export default function CheckoutPage() {
   const tax = Math.round(subtotal * 0.09);
   const total = subtotal + tax;
 
+  const isFormValid =
+    form.email &&
+    form.firstName &&
+    form.address &&
+    form.city &&
+    form.state &&
+    form.pincode;
+
   /* 🧮 Quantity Handlers */
   const increaseQty = (productId, currentQty, shouldSyncWithCart) => {
     const newQty = currentQty + 1;
@@ -117,55 +211,42 @@ export default function CheckoutPage() {
 
   /* 💳 Payment */
   const handlePayment = async () => {
+    if (!isFormValid || processing) return;
     setProcessing(true);
 
     try {
-      const res = await fetch("/api/orders/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items,
-          subtotal,
-          tax,
-          total,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert("Failed to create order");
-        setProcessing(false);
-        return;
-      }
-
-      if (typeof window !== "undefined") {
-        const raw = sessionStorage.getItem("buyNowProduct");
-
-        if (raw) {
-          sessionStorage.removeItem("buyNowProduct");
-
-          try {
-            const parsed = JSON.parse(raw);
-            if (parsed.fromCart && parsed.productId) {
-              await removeFromCart(parsed.productId);
-            }
-          } catch (error) {
-            console.error("Failed to parse buyNowProduct on payment", error);
-          }
-        } else {
-          const purchasedIds = items.map(
-            (item) => item.productId
-          );
-          await clearPurchasedItems(purchasedIds);
+      // Optionally save address for future orders
+      if (saveAddress && user) {
+        try {
+          await fetch("/api/address/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              userId: user._id,
+              email: form.email,
+              firstName: form.firstName,
+              lastName: form.lastName,
+              address: form.address,
+              apartment: form.apartment,
+              city: form.city,
+              state: form.state,
+              pincode: form.pincode,
+            }),
+          });
+        } catch (err) {
+          console.error("Save address failed", err);
+          // continue with order even if address save fails
         }
       }
+      // Simulate payment delay (dummy payment, no real API call)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      window.location.href =
-        `https://siddartha123.nxtwat.in/checkout?orderId=${data.orderId}`;
-
+      // After "processing", show success modal
+      setShowSuccess(true);
+      setProcessing(false);
     } catch (error) {
-      alert("Something went wrong");
+      console.error("Checkout payment error", error);
       setProcessing(false);
     }
   };
@@ -181,6 +262,10 @@ export default function CheckoutPage() {
           type="text"
           className="input-field"
           placeholder="Email or mobile phone number"
+          value={form.email}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, email: e.target.value }))
+          }
         />
 
         <h2 className="delivery-title">Delivery</h2>
@@ -190,23 +275,82 @@ export default function CheckoutPage() {
         </select>
 
         <div className="row-2">
-          <input className="input-field" placeholder="First name (optional)" />
-          <input className="input-field" placeholder="Last name" />
+          <input
+            className="input-field"
+            placeholder="First name"
+            value={form.firstName}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, firstName: e.target.value }))
+            }
+          />
+          <input
+            className="input-field"
+            placeholder="Last name (optional)"
+            value={form.lastName}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, lastName: e.target.value }))
+            }
+          />
         </div>
 
-        <input className="input-field" placeholder="Address" />
-        <input className="input-field" placeholder="Apartment, suite, etc. (optional)" />
+        <input
+          className="input-field"
+          placeholder="Address"
+          value={form.address}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, address: e.target.value }))
+          }
+        />
+        <input
+          className="input-field"
+          placeholder="Apartment, suite, etc. (optional)"
+          value={form.apartment}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, apartment: e.target.value }))
+          }
+        />
 
         <div className="row-3">
-          <input className="input-field" placeholder="City" />
-          <input className="input-field" placeholder="State" />
-          <input className="input-field" placeholder="PIN code" />
+          <input
+            className="input-field"
+            placeholder="City"
+            value={form.city}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, city: e.target.value }))
+            }
+          />
+          <input
+            className="input-field"
+            placeholder="State"
+            value={form.state}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, state: e.target.value }))
+            }
+          />
+          <input
+            className="input-field"
+            placeholder="PIN code"
+            value={form.pincode}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, pincode: e.target.value }))
+            }
+          />
+        </div>
+
+        <div className="checkbox-row">
+          <input
+            type="checkbox"
+            id="saveAddress"
+            checked={saveAddress}
+            onChange={(e) => setSaveAddress(e.target.checked)}
+          />
+          <span>Save this address for future orders</span>
         </div>
 
         <button
           className="pay-now-btn"
           onClick={handlePayment}
-          disabled={processing}
+          disabled={processing || !isFormValid || addressLoading}
         >
           {processing ? "Processing..." : "Pay Now"}
         </button>
@@ -283,7 +427,23 @@ export default function CheckoutPage() {
           <span>₹{total}</span>
         </div>
       </div>
-
+      {showSuccess && (
+        <div className="payment-modal-overlay">
+          <div className="payment-modal">
+            <h2>Payment Successful 🎉</h2>
+            <p>Your order has been placed successfully.</p>
+            <button
+              className="payment-modal-btn"
+              onClick={() => {
+                setShowSuccess(false);
+                router.push("/");
+              }}
+            >
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
