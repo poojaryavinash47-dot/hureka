@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ export default function CartPage() {
     updateQty,
     removeFromCart,
     toggleSelection,
+    clearCart,
   } = useCart();
 
   const { user, loading } = useAuth();
@@ -28,6 +29,8 @@ export default function CartPage() {
   });
 
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
+  const [tempQuantities, setTempQuantities] = useState({});
 
   if (loading || cartLoading) {
     return <p style={{ padding: 40 }}>Loading cart...</p>;
@@ -57,16 +60,88 @@ export default function CartPage() {
     0
   );
 
+  const handleQtyChange = useCallback(
+    (productId, rawValue, isAuthenticatedUser) => {
+      const value = String(rawValue);
+      // Track the raw string so the input can be temporarily empty
+      setTempQuantities((prev) => ({ ...prev, [productId]: value }));
+
+      // Allow user to clear the field (empty string) without deleting the item
+      if (value === "") {
+        return;
+      }
+
+      const parsed = parseInt(value, 10);
+
+      if (Number.isNaN(parsed)) {
+        return;
+      }
+
+      // If quantity becomes 0, remove the item from the cart
+      if (parsed === 0) {
+        if (isAuthenticatedUser) {
+          removeFromCart(productId);
+        } else {
+          const updated = removeGuestCartItem(productId);
+          setGuestItems(updated);
+        }
+
+        // Clean up any temporary quantity state for this product
+        setTempQuantities((prev) => {
+          const next = { ...prev };
+          delete next[productId];
+          return next;
+        });
+        return;
+      }
+
+      // For positive quantities, update the cart quantity
+      if (parsed > 0) {
+        if (isAuthenticatedUser) {
+          updateQty(productId, parsed);
+        } else {
+          const updated = updateGuestCartQuantity(productId, parsed);
+          setGuestItems(updated);
+        }
+
+        // Once a valid quantity is applied, revert to using cart quantity
+        setTempQuantities((prev) => {
+          const next = { ...prev };
+          delete next[productId];
+          return next;
+        });
+      }
+    },
+    [updateQty, removeFromCart, setGuestItems]
+  );
+
   return (
     <section className="cart-page">
       <h1>Your Cart</h1>
 
       {itemsToRender.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <div className="empty-cart">
+          <div className="empty-cart-icon">🛒</div>
+
+          <h2>Your cart is empty</h2>
+
+          <p>
+            Looks like you haven't added anything to your cart yet.
+          </p>
+
+          <button
+            className="start-shopping-btn"
+            onClick={() => router.push("/shop/joint-care")}
+          >
+            Start Shopping
+          </button>
+        </div>
       ) : (
         <>
-          <div className="cart-grid">
-            {itemsToRender.map((product) => (
+          <div className="cart-layout">
+            <div className="cart-products">
+              <div className="cart-grid">
+                {itemsToRender.map((product) => (
               <div
                 key={product.productId}
                 className="cart-product-card"
@@ -109,32 +184,65 @@ export default function CartPage() {
 
                   {/* QUANTITY */}
                   <div className="qty-control">
-                    Qty:
-
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (product.qty <= 1) return;
+                        const newQty = product.qty - 1;
 
-                        if (isAuthenticated) {
-                          updateQty(
-                            product.productId,
-                            product.qty - 1
-                          );
+                        // If new quantity is 0 or less, remove the item
+                        if (newQty <= 0) {
+                          if (isAuthenticated) {
+                            removeFromCart(product.productId);
+                          } else {
+                            const updated = removeGuestCartItem(
+                              product.productId
+                            );
+                            setGuestItems(updated);
+                          }
                         } else {
-                          const updated = updateGuestCartQuantity(
-                            product.productId,
-                            product.qty - 1
-                          );
-                          setGuestItems(updated);
+                          // Otherwise, update the quantity
+                          if (isAuthenticated) {
+                            updateQty(product.productId, newQty);
+                          } else {
+                            const updated = updateGuestCartQuantity(
+                              product.productId,
+                              newQty
+                            );
+                            setGuestItems(updated);
+                          }
                         }
                       }}
-                      disabled={product.qty <= 1}
                     >
                       −
                     </button>
 
-                    <span>{product.qty}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      className="qty-input"
+                      value={
+                        tempQuantities[product.productId] ?? product.qty
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) =>
+                        handleQtyChange(
+                          product.productId,
+                          e.target.value,
+                          isAuthenticated
+                        )
+                      }
+                      onBlur={() => {
+                        // If the user leaves the field empty, restore the real cart quantity
+                        setTempQuantities((prev) => {
+                          if (prev[product.productId] === "") {
+                            const next = { ...prev };
+                            delete next[product.productId];
+                            return next;
+                          }
+                          return prev;
+                        });
+                      }}
+                    />
 
                     <button
                       onClick={(e) => {
@@ -155,6 +263,24 @@ export default function CartPage() {
                       }}
                     >
                       +
+                    </button>
+
+                    <button
+                      type="button"
+                      className="delete-item-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isAuthenticated) {
+                          removeFromCart(product.productId);
+                        } else {
+                          const updated = removeGuestCartItem(
+                            product.productId
+                          );
+                          setGuestItems(updated);
+                        }
+                      }}
+                    >
+                      🗑
                     </button>
                   </div>
 
@@ -195,49 +321,50 @@ export default function CartPage() {
                     >
                       Buy Now
                     </button>
-
-                    <button
-                      className="cart-remove-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isAuthenticated) {
-                          removeFromCart(product.productId);
-                        } else {
-                          const updated = removeGuestCartItem(
-                            product.productId
-                          );
-                          setGuestItems(updated);
-                        }
-                      }}
-                    >
-                      Remove
-                    </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+                ))}
+              </div>
 
-          {/* ✅ CART TOTAL SECTION */}
-          <div className="cart-summary">
-            <div className="summary-row">
-              <span>Selected items ({selectedItems.length})</span>
-              <span>₹{subtotal}</span>
+              <div className="cart-actions-row">
+                <button
+                  type="button"
+                  className="clear-cart-btn"
+                  disabled={itemsToRender.length === 0}
+                  onClick={() => setShowClearCartModal(true)}
+                >
+                  Clear Cart
+                </button>
+              </div>
             </div>
 
-            <button
-              className="proceed-checkout-btn"
-              disabled={!hasSelectedItems}
-              onClick={() => {
-                if (!isAuthenticated) {
-                  router.push("/login");
-                } else {
-                  router.push("/checkout");
-                }
-              }}
-            >
-              Proceed to Checkout
-            </button>
+            {/* ✅ CART TOTAL SECTION */}
+            <div className="cart-summary">
+              <div className="summary-row">
+                <span>Selected items ({selectedItems.length})</span>
+                <span>₹{subtotal}</span>
+              </div>
+
+              <button
+                className="proceed-checkout-btn"
+                disabled={!hasSelectedItems}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    router.push("/login");
+                  } else {
+                    if (typeof window !== "undefined") {
+                      // Ensure previous Buy Now flows don't override full-cart checkout
+                      sessionStorage.removeItem("buyNowProduct");
+                      sessionStorage.removeItem("pendingBuyNow");
+                    }
+                    router.push("/checkout");
+                  }
+                }}
+              >
+                Proceed to Checkout
+              </button>
+            </div>
           </div>
         </>
       )}
@@ -246,6 +373,40 @@ export default function CartPage() {
         show={showLoginModal}
         onClose={() => setShowLoginModal(false)}
       />
+
+      {showClearCartModal && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h3>Clear Cart</h3>
+            <p>Are you sure you want to remove all items from your cart?</p>
+
+            <div className="modal-buttons">
+              <button
+                type="button"
+                onClick={() => setShowClearCartModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (isAuthenticated) {
+                    await clearCart();
+                  } else {
+                    setGuestItems([]);
+                    if (typeof window !== "undefined") {
+                      window.localStorage.removeItem("guestCart");
+                    }
+                  }
+                  setShowClearCartModal(false);
+                }}
+              >
+                Clear Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

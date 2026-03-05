@@ -86,6 +86,20 @@ export function CartProvider({ children }) {
     setCartItems(mapItems(data.items));
   };
 
+  const clearCart = async () => {
+    const res = await fetch("/api/cart/clear", {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      console.error("Failed to clear cart");
+      return;
+    }
+
+    setCartItems([]);
+  };
+
   const toggleSelection = (productId) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -111,6 +125,7 @@ export function CartProvider({ children }) {
         updateQty,
         removeFromCart,
         toggleSelection,
+        clearCart,
         clearPurchasedItems,
       }}
     >

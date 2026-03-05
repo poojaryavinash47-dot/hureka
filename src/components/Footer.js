@@ -25,7 +25,7 @@ export default function Footer() {
     </li>
 
     <li>
-      <Link href="/subscription-plan">Subscription Plan</Link>
+      <Link href="/subscription-plans">Subscription Plan</Link>
     </li>
 
     <li>
