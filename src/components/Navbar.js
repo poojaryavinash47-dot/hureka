@@ -118,14 +118,14 @@ const { user, loading, logout } = useAuth();
             👤
             {user && <span className="online-dot" />}
           </button>
-          {user && <span>{user.name}</span>}
+          {user && <span className="navbar-username">{user.name}</span>}
         </div>
 
         {profileOpen && (
           <div className="profile-dropdown">
             {user ? (
               <>
-               
+                <div className="mobile-username">{user.name}</div>
                 <button
                   onClick={() => {
                     closeAll();

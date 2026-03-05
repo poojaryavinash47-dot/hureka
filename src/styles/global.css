@@ -5644,6 +5644,23 @@ input[type="number"] {
     top: 64px;
   }
 }
+/* ===============================
+   MOBILE PROFILE USERNAME BEHAVIOR
+================================ */
+@media (max-width: 768px) {
+  /* Hide username next to icon in navbar on mobile */
+  .navbar-username {
+    display: none;
+  }
+
+  /* Show username as header inside the profile menu */
+  .mobile-username {
+    font-weight: 600;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
 /* NAV MENU ITEMS */
 .menu li a,
 .dropdown-toggle {
