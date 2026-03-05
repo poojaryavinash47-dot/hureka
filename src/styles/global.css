@@ -13,6 +13,26 @@ body {
   overflow-x: hidden;
 }
 
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+body,
+button,
+input,
+textarea,
+select,
+a,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Poppins", sans-serif;
+}
+
 /* Homepage typography: use hero font (Poppins) consistently */
 .home-page,
 .home-page h1,
@@ -1101,7 +1121,13 @@ body {
 }
 
 .navbar .menu > li > a:hover {
-  color: #2e3a46;
+  color: #000000;
+}
+
+.navbar .menu li:hover > a,
+.navbar .menu li:hover .dropdown-toggle,
+.navbar .menu li:hover .dropdown-toggle span {
+  color: #000000;
 }
 
 /* HOVER UNDERLINE */
@@ -5519,6 +5545,14 @@ body {
   .dropdown-toggle span {
     color: #222 !important;
   }
+
+  .navbar .menu > li > a:hover,
+  .menu li a:hover,
+  .menu li button:hover,
+  .dropdown-toggle:hover,
+  .dropdown-toggle:hover span {
+    color: #000000 !important;
+  }
 }
 /* ===============================
    SHOP DROPDOWN – DESKTOP PRO STYLE
@@ -5583,7 +5617,7 @@ body {
 
 /* Hover effect like SunOn */
 .dropdown-menu li a:hover {
-  background: rgba(0,0,0,0.08);
+  background: rgba(255, 255, 255, 0.1);
 }
 /* ===============================
    SHOP DROPDOWN – MOBILE STYLE
@@ -5692,6 +5726,31 @@ body {
     color: #000;
   }
 }
+/* ===============================
+   DESKTOP: DROPDOWN ANIMATION
+   =============================== */
+@media (min-width: 769px) {
+  .navbar .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+    display: block; /* keep in flow for smooth animation */
+  }
+
+  .navbar .menu li:hover > .dropdown-menu,
+  .navbar .menu li:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+}
+
 /* MODAL OVERLAY */
 .modal-overlay {
   position: fixed;
