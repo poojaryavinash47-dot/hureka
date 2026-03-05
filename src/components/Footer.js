@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { FaTwitter, FaFacebookF, FaPinterestP, FaInstagram } from "react-icons/fa";
+
 export default function Footer() {
   return (
     <footer className="footer">
@@ -54,12 +56,24 @@ export default function Footer() {
         {/* SOCIAL */}
         <div className="footer-column">
           <h4>FOLLOW US</h4>
-          <ul className="social-links">
-            <li>Twitter</li>
-            <li>Facebook</li>
-            <li>Pinterest</li>
-            <li>Instagram</li>
-          </ul>
+          <div className="social-links">
+            <a href="#" className="social-item">
+              <FaTwitter className="social-icon" />
+              <span>Twitter</span>
+            </a>
+            <a href="#" className="social-item">
+              <FaFacebookF className="social-icon" />
+              <span>Facebook</span>
+            </a>
+            <a href="#" className="social-item">
+              <FaPinterestP className="social-icon" />
+              <span>Pinterest</span>
+            </a>
+            <a href="#" className="social-item">
+              <FaInstagram className="social-icon" />
+              <span>Instagram</span>
+            </a>
+          </div>
         </div>
       </div>
 

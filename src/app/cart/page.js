@@ -117,9 +117,12 @@ export default function CartPage() {
 
   return (
     <section className="cart-page">
-      <h1>Your Cart</h1>
+      <div className="cart-container">
+        {itemsToRender.length > 0 && (
+          <h1 className="cart-title">Your Cart</h1>
+        )}
 
-      {itemsToRender.length === 0 ? (
+        {itemsToRender.length === 0 ? (
         <div className="empty-cart">
           <div className="empty-cart-icon">🛒</div>
 
@@ -368,45 +371,45 @@ export default function CartPage() {
           </div>
         </>
       )}
+        <LoginRequiredModal
+          show={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
 
-      <LoginRequiredModal
-        show={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
+        {showClearCartModal && (
+          <div className="modal-overlay">
+            <div className="modal-card">
+              <h3>Clear Cart</h3>
+              <p>Are you sure you want to remove all items from your cart?</p>
 
-      {showClearCartModal && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <h3>Clear Cart</h3>
-            <p>Are you sure you want to remove all items from your cart?</p>
-
-            <div className="modal-buttons">
-              <button
-                type="button"
-                onClick={() => setShowClearCartModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (isAuthenticated) {
-                    await clearCart();
-                  } else {
-                    setGuestItems([]);
-                    if (typeof window !== "undefined") {
-                      window.localStorage.removeItem("guestCart");
+              <div className="modal-buttons">
+                <button
+                  type="button"
+                  onClick={() => setShowClearCartModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (isAuthenticated) {
+                      await clearCart();
+                    } else {
+                      setGuestItems([]);
+                      if (typeof window !== "undefined") {
+                        window.localStorage.removeItem("guestCart");
+                      }
                     }
-                  }
-                  setShowClearCartModal(false);
-                }}
-              >
-                Clear Cart
-              </button>
+                    setShowClearCartModal(false);
+                  }}
+                >
+                  Clear Cart
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }

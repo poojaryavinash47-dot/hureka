@@ -29,6 +29,7 @@ export default function CheckoutPage() {
 
   const [saveAddress, setSaveAddress] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
 
   /* 🔐 Protect Route */
   useEffect(() => {
@@ -274,7 +275,7 @@ export default function CheckoutPage() {
           <option>India</option>
         </select>
 
-        <div className="row-2">
+        <div className="name-row">
           <input
             className="input-field"
             placeholder="First name"
@@ -310,7 +311,7 @@ export default function CheckoutPage() {
           }
         />
 
-        <div className="row-3">
+        <div className="location-row">
           <input
             className="input-field"
             placeholder="City"
@@ -411,21 +412,62 @@ export default function CheckoutPage() {
             </div>
           );
         })}
-
-        <div className="summary-row">
-          <span>Subtotal</span>
-          <span>₹{subtotal}</span>
+        {/* Mobile-only: collapsible order summary */}
+        <div
+          className="mobile-summary-toggle"
+          onClick={() => setShowSummary((prev) => !prev)}
+        >
+          <span>Order Summary</span>
+          <span className={`arrow ${showSummary ? "open" : ""}`}>
+            ▼
+          </span>
         </div>
 
-        <div className="summary-row">
-          <span>Estimated taxes</span>
-          <span>₹{tax}</span>
+        {showSummary && (
+          <div className="order-summary-mobile">
+            <div className="summary-row">
+              <span>Subtotal</span>
+              <span>₹{subtotal}</span>
+            </div>
+
+            <div className="summary-row">
+              <span>Estimated taxes</span>
+              <span>₹{tax}</span>
+            </div>
+
+            <div className="summary-row total">
+              <span>Total</span>
+              <span>₹{total}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Desktop summary (unchanged) */}
+        <div className="order-summary-desktop">
+          <div className="summary-row">
+            <span>Subtotal</span>
+            <span>₹{subtotal}</span>
+          </div>
+
+          <div className="summary-row">
+            <span>Estimated taxes</span>
+            <span>₹{tax}</span>
+          </div>
+
+          <div className="summary-total">
+            <span>Total</span>
+            <span>₹{total}</span>
+          </div>
         </div>
 
-        <div className="summary-total">
-          <span>Total</span>
-          <span>₹{total}</span>
-        </div>
+        {/* Mobile-only Pay Now button below summary */}
+        <button
+          className="pay-now-btn pay-now-mobile"
+          onClick={handlePayment}
+          disabled={processing || !isFormValid || addressLoading}
+        >
+          {processing ? "Processing..." : "Pay Now"}
+        </button>
       </div>
       {showSuccess && (
         <div className="payment-modal-overlay">
