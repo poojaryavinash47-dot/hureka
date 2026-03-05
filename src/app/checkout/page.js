@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import OrderModal from "@/components/OrderModal";
 
 export default function CheckoutPage() {
   const { cartItems, cartLoading, clearPurchasedItems, removeFromCart, updateQty } = useCart();
@@ -11,6 +12,7 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   const [processing, setProcessing] = useState(false);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
   const [addressLoading, setAddressLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [initializingItems, setInitializingItems] = useState(true);
@@ -29,6 +31,7 @@ export default function CheckoutPage() {
 
   const [saveAddress, setSaveAddress] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
   /* 🔐 Protect Route */
@@ -216,7 +219,6 @@ export default function CheckoutPage() {
     setProcessing(true);
 
     try {
-      // Optionally save address for future orders
       if (saveAddress && user) {
         try {
           await fetch("/api/address/save", {
@@ -237,18 +239,78 @@ export default function CheckoutPage() {
           });
         } catch (err) {
           console.error("Save address failed", err);
-          // continue with order even if address save fails
         }
       }
-      // Simulate payment delay (dummy payment, no real API call)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // After "processing", show success modal
-      setShowSuccess(true);
-      setProcessing(false);
+      // Open confirmation modal; actual WooCommerce order will be created
+      // only after user clicks "Confirm Order".
+      setShowOrderModal(true);
     } catch (error) {
       console.error("Checkout payment error", error);
+    } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleConfirmOrder = async () => {
+    if (submittingOrder) return;
+    setSubmittingOrder(true);
+
+    try {
+      const billing = {
+        email: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        address: form.address,
+        apartment: form.apartment,
+        city: form.city,
+        state: form.state,
+        pincode: form.pincode,
+      };
+
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          billing,
+          items,
+          subtotal,
+          tax,
+          total,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.success) {
+        const message = data?.error || "Order creation failed";
+        console.error("Order creation failed", data);
+        throw new Error(message);
+      }
+
+      const createdOrder = data.order;
+
+      // Clear purchased items from cart for regular checkout
+      try {
+        const productIdsToClear = items
+          .filter((item) => item.productId)
+          .map((item) => item.productId);
+
+        if (productIdsToClear.length && typeof clearPurchasedItems === "function") {
+          await clearPurchasedItems(productIdsToClear);
+        }
+      } catch (err) {
+        console.error("Failed to clear purchased items", err);
+      }
+
+      setShowOrderModal(false);
+      setShowSuccess(true);
+    } catch (err) {
+      console.error("Confirm order error", err);
+      alert(err.message || "Something went wrong while confirming your order.");
+    } finally {
+      setSubmittingOrder(false);
     }
   };
 
@@ -353,7 +415,7 @@ export default function CheckoutPage() {
           onClick={handlePayment}
           disabled={processing || !isFormValid || addressLoading}
         >
-          {processing ? "Processing..." : "Pay Now"}
+          {processing ? "Processing..." : "Pay"}
         </button>
       </div>
 
@@ -466,9 +528,19 @@ export default function CheckoutPage() {
           onClick={handlePayment}
           disabled={processing || !isFormValid || addressLoading}
         >
-          {processing ? "Processing..." : "Pay Now"}
+          {processing ? "Processing..." : "Pay"}
         </button>
       </div>
+      <OrderModal
+        open={showOrderModal}
+        items={items}
+        subtotal={subtotal}
+        tax={tax}
+        total={total}
+        confirming={submittingOrder}
+        onConfirm={handleConfirmOrder}
+        onClose={() => (!submittingOrder ? setShowOrderModal(false) : null)}
+      />
       {showSuccess && (
         <div className="payment-modal-overlay">
           <div className="payment-modal">

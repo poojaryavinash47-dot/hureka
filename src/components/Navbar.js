@@ -129,7 +129,7 @@ const { user, loading, logout } = useAuth();
                 <button
                   onClick={() => {
                     closeAll();
-                    router.push("/cart");
+                    router.push("/my-orders");
                   }}
                 >
                   📦 My Orders
