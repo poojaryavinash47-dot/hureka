@@ -118,38 +118,51 @@ const { user, loading, logout } = useAuth();
             👤
             {user && <span className="online-dot" />}
           </button>
-          {user && <span className="navbar-username">{user.name}</span>}
         </div>
 
         {profileOpen && (
           <div className="profile-dropdown">
             {user ? (
               <>
-                <div className="mobile-username">{user.name}</div>
+                <div className="profile-dropdown-header">
+                  <div className="profile-dropdown-avatar">👤</div>
+                  <div className="profile-dropdown-userinfo">
+                    <div className="profile-dropdown-name">{user.name}</div>
+                  </div>
+                </div>
+
+                <div className="profile-dropdown-divider" />
+
                 <button
+                  className="profile-dropdown-item"
                   onClick={() => {
                     closeAll();
                     router.push("/my-orders");
                   }}
                 >
-                  📦 My Orders
+                  <span className="profile-dropdown-icon">📦</span>
+                  <span className="profile-dropdown-label">My Orders</span>
                 </button>
                 <button
+                  className="profile-dropdown-item"
                   onClick={() => {
                     closeAll();
                     router.push("/cart");
                   }}
                 >
-                  🛒 Cart
+                  <span className="profile-dropdown-icon">🛒</span>
+                  <span className="profile-dropdown-label">Cart</span>
                 </button>
                 <button
+                  className="profile-dropdown-item"
                   onClick={() => {
                     logout();
                     closeAll();
                     router.push("/login");
                   }}
                 >
-                  🚪 Logout
+                  <span className="profile-dropdown-icon">🚪</span>
+                  <span className="profile-dropdown-label">Logout</span>
                 </button>
               </>
             ) : (

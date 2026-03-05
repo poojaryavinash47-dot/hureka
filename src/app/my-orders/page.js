@@ -55,7 +55,9 @@ export default function MyOrdersPage() {
   return (
     <section className="my-orders-page">
       <div className="my-orders-container">
-        <h1 className="my-orders-title">My Orders</h1>
+        <header className="my-orders-header">
+          <h1 className="my-orders-title">My Orders</h1>
+        </header>
 
         {fetching ? (
           <p className="my-orders-loading">Fetching your orders...</p>

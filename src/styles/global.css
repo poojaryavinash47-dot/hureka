@@ -5033,30 +5033,75 @@ input[type="number"] {
   position: absolute;
   top: 42px;
   right: 0;
-
-  width: 160px;
+  min-width: 220px;
   background: #ffffff;
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: 14px;
+  padding: 10px 0;
 
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
   z-index: 100;
+}
+
+/* Dropdown header with avatar + username */
+.profile-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 12px 16px;
+}
+
+.profile-dropdown-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.profile-dropdown-userinfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-dropdown-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.profile-dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 4px 0 6px 0;
 }
 
 .profile-dropdown a,
 .profile-dropdown button {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px 16px;
 
   font-size: 14px;
   text-align: left;
   background: none;
   border: none;
   cursor: pointer;
-  color: #1d1d1f;
+  color: #111827;
   border-radius: 8px;
   text-decoration: none;
+}
+
+.profile-dropdown-item .profile-dropdown-icon {
+  font-size: 18px;
+}
+
+.profile-dropdown-item .profile-dropdown-label {
+  flex: 1;
 }
 
 .profile-dropdown a:hover,
@@ -5233,22 +5278,10 @@ input[type="number"] {
   top: 54px;
   right: 0;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 14px 30px rgba(0,0,0,0.15);
-  padding: 10px;
-  min-width: 160px;
-}
-
-.profile-dropdown a,
-.profile-dropdown button {
-  display: block;
-  width: 100%;
-  padding: 10px 12px;
-  text-align: left;
-  border: none;
-  background: none;
-  font-size: 14px;
-  cursor: pointer;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(15,23,42,0.18);
+  padding: 10px 0;
+  min-width: 220px;
 }
 
 /* ---------- HAMBURGER ---------- */
@@ -5651,14 +5684,6 @@ input[type="number"] {
   /* Hide username next to icon in navbar on mobile */
   .navbar-username {
     display: none;
-  }
-
-  /* Show username as header inside the profile menu */
-  .mobile-username {
-    font-weight: 600;
-    font-size: 18px;
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
 }
 /* NAV MENU ITEMS */
@@ -6753,10 +6778,19 @@ input[type="number"] {
   max-width: 1100px;
   margin: 0 auto;
 }
+.my-orders-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 0 24px;
+}
 
 .my-orders-title {
-  font-size: 26px;
-  margin-bottom: 18px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .my-orders-loading {
@@ -6996,6 +7030,14 @@ input[type="number"] {
 @media (max-width: 768px) {
   .my-orders-page {
     padding-inline: 14px;
+  }
+
+  .my-orders-header {
+    padding: 14px 0 20px;
+  }
+
+  .my-orders-title {
+    font-size: 26px;
   }
 
   .order-card-top {
