@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 
 const categories = [
   { slug: "joint-care", title: "Joint Care", image: "/products/lotion.png" },
-  { slug: "hair-care", title: "Hair Care", image: "/products/oilfree.png" },
+  { slug: "hair-care", title: "Hair Care", image: "/products/a2.png" },
   { slug: "bone-calcium", title: "Bone & Calcium", image: "/products/sunscreen2.png" },
-  { slug: "multivitamins", title: "Multivitamins", image: "/products/promo-lotion.png" },
+  { slug: "multivitamins", title: "Multivitamins", image: "/products/a1.png" },
   { slug: "immunity-support", title: "Immunity Support", image: "/products/sunscreen1.png" },
 ];
 
