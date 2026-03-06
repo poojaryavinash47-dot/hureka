@@ -69,7 +69,7 @@ export default function MyOrdersPage() {
             <button
               type="button"
               className="my-orders-empty-btn"
-              onClick={() => router.push("/joint-care")}
+              onClick={() => router.push("shop/joint-care")}
             >
               Start Shopping
             </button>

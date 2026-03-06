@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="footer-container">
         {/* LOGO */}
         <div className="footer-brand">
-          <h2>Hureka</h2>
+          <h2>HUREKA</h2>
         </div>
 
         {/* INFORMATION */}

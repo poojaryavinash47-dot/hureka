@@ -25,7 +25,7 @@ export default function FeaturesSection() {
   return (
     <section className="features-section">
       <h2 className="features-title">
-        Enhance Beauty With Hureka
+        Why Choose Hureka
       </h2>
 
       <div className="features-grid">
