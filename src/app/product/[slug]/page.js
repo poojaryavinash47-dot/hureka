@@ -210,7 +210,7 @@ export default function ProductDetailsPage() {
               {galleryImages.map((img, index) => (
                 // Skip the main image at index 0 if desired, or include all
                 <div
-                  key={img.id || img.src || index}
+                  key={`${img.id || img.src}-${index}`}
                   className={`gallery-thumb ${
                     selectedImage === img.src ? "active" : ""
                   }`}
