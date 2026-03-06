@@ -19,6 +19,7 @@ export default function ProductDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
+  const [selectedImage, setSelectedImage] = useState("");
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
@@ -66,18 +67,26 @@ export default function ProductDetailsPage() {
               }))
           : [];
 
-        setProduct({
+        const mappedProduct = {
           slug: p.slug, // ✅ use slug everywhere
           name: p.name,
           price: Number(p.price),
           mrp: Number(p.regular_price),
           image: p.images?.[0]?.src || "/placeholder.png",
+          images: p.images || [],
           category: p.categories?.[0]?.name || "",
           shortDescription: p.short_description,
           description: p.description,
           attributes,
           cod: true,
-        });
+        };
+
+        setProduct(mappedProduct);
+
+        const firstImageSrc =
+          (Array.isArray(mappedProduct.images) && mappedProduct.images[0]?.src) ||
+          mappedProduct.image;
+        setSelectedImage(firstImageSrc || "");
 
         setActiveTab("description");
         // Load reviews for this product
@@ -94,6 +103,13 @@ export default function ProductDetailsPage() {
 
   if (loading) return <p style={{ padding: 80 }}>Loading product...</p>;
   if (!product) return <p style={{ padding: 80 }}>Product not found</p>;
+
+  const galleryImages =
+    product.images && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [{ src: product.image }]
+      : [];
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
@@ -182,12 +198,52 @@ export default function ProductDetailsPage() {
       <div className="product-details">
 
         <div className="details-image">
-          <img src={product.image} alt={product.name} />
+          <div className="main-product-image">
+            <img
+              src={selectedImage || galleryImages[0]?.src || product.image}
+              alt={product.name}
+            />
+          </div>
+
+          {galleryImages.length > 1 && (
+            <div className="product-gallery">
+              {galleryImages.map((img, index) => (
+                // Skip the main image at index 0 if desired, or include all
+                <div
+                  key={img.id || img.src || index}
+                  className={`gallery-thumb ${
+                    selectedImage === img.src ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedImage(img.src)}
+                >
+                  <img
+                    src={img.src}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="details-info">
           <p className="category">{product.category}</p>
           <h1>{product.name}</h1>
+
+          <div className="product-rating">
+            <div className="stars">
+              {"★★★★★".slice(0, Math.round(averageRating))}
+              {"☆☆☆☆☆".slice(Math.round(averageRating))}
+            </div>
+
+            <span className="rating-value">
+              {averageRating.toFixed(1)}
+            </span>
+
+            <span className="rating-count">
+              {reviewCount} review{reviewCount !== 1 ? "s" : ""}
+            </span>
+          </div>
 
           <div className="price-box">
             {product.mrp && (
@@ -221,159 +277,144 @@ export default function ProductDetailsPage() {
               Buy Now
             </button>
           </div>
-
-          <div className="product-tabs">
-            <div className="tab-headers">
-              <button
-                className={activeTab === "description" ? "active" : ""}
-                onClick={() => setActiveTab("description")}
-              >
-                Description
-              </button>
-
-              {product.attributes.map((attr) => (
-                <button
-                  key={attr.key}
-                  className={activeTab === attr.key ? "active" : ""}
-                  onClick={() => setActiveTab(attr.key)}
-                >
-                  {attr.label}
-                </button>
-              ))}
-
-              <button
-                className={activeTab === "reviews" ? "active" : ""}
-                onClick={() => setActiveTab("reviews")}
-              >
-                Reviews
-              </button>
-            </div>
-
-            <div className="tab-content">
-              {activeTab === "description" && (
-                <div
-                  className="combo-full-description"
-                  dangerouslySetInnerHTML={{
-                    __html: product.description,
-                  }}
-                />
-              )}
-
-              {product.attributes.map(
-                (attr) =>
-                  activeTab === attr.key && (
-                    <ul key={attr.key} className="tab-list">
-                      {attr.values.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  )
-              )}
-
-              {activeTab === "reviews" && (
-                <div className="reviews-section">
-                  <h2>Customer Reviews</h2>
-
-                  <div className="reviews-summary">
-                    <div className="reviews-average">
-                      <span className="reviews-average-score">
-                        {averageRating.toFixed(1)}
-                      </span>
-                      <span className="reviews-stars">
-                        {"★★★★★".slice(0, Math.round(averageRating))}
-                        {"☆☆☆☆☆".slice(Math.round(averageRating))}
-                      </span>
-                      <span className="reviews-count">
-                        {reviewCount} review{reviewCount !== 1 ? "s" : ""}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="write-review">
-                    <h3>Write a Review</h3>
-
-                    {!user && (
-                      <p className="reviews-login-hint">
-                        Please login to rate or write a review.
-                      </p>
-                    )}
-
-                    <form onSubmit={handleSubmitReview} className="review-form">
-                      <label className="review-label">Your Rating</label>
-                      <div className="star-input">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            className={
-                              star <= reviewRating ? "star-btn active" : "star-btn"
-                            }
-                            onClick={() => {
-                              if (!user) {
-                                setShowLoginModal(true);
-                                return;
-                              }
-                              setReviewRating(star);
-                            }}
-                          >
-                            ★
-                          </button>
-                        ))}
-                      </div>
-
-                      <label className="review-label">Your Review</label>
-                      <textarea
-                        className="review-textarea"
-                        rows={4}
-                        placeholder="Share your experience..."
-                        value={reviewComment}
-                        onChange={(e) => setReviewComment(e.target.value)}
-                      />
-
-                      {reviewError && (
-                        <p className="review-error">{reviewError}</p>
-                      )}
-
-                      <button
-                        type="submit"
-                        className="review-submit-btn"
-                        disabled={reviewSubmitting}
-                      >
-                        {reviewSubmitting ? "Submitting..." : "Submit Review"}
-                      </button>
-                    </form>
-                  </div>
-
-                  <h3 className="review-section-title">Customer Reviews</h3>
-                  <div className="reviews-list">
-                    {reviews.length === 0 ? (
-                      <p className="no-reviews">
-                        No reviews yet. Be the first to review this product.
-                      </p>
-                    ) : (
-                      reviews.map((r) => (
-                        <div key={r._id} className="review-card">
-                          <div className="review-header">
-                            <span className="review-stars">
-                              {"★★★★★".slice(0, r.rating)}
-                              {"☆☆☆☆☆".slice(r.rating)}
-                            </span>
-                            <span className="review-username">{r.username}</span>
-                            <span className="review-date">
-                              {new Date(r.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <p className="review-comment">{r.comment}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </div>
+
+      <div className="product-tabs">
+        <div className="tab-headers">
+          <button
+            className={activeTab === "description" ? "active" : ""}
+            onClick={() => setActiveTab("description")}
+          >
+            Description
+          </button>
+
+          {product.attributes.map((attr) => (
+            <button
+              key={attr.key}
+              className={activeTab === attr.key ? "active" : ""}
+              onClick={() => setActiveTab(attr.key)}
+            >
+              {attr.label}
+            </button>
+          ))}
+
+          <button
+            className={activeTab === "reviews" ? "active" : ""}
+            onClick={() => setActiveTab("reviews")}
+          >
+            Reviews
+          </button>
+        </div>
+
+        <div className="tab-content">
+          {activeTab === "description" && (
+            <div
+              className="combo-full-description"
+              dangerouslySetInnerHTML={{
+                __html: product.description,
+              }}
+            />
+          )}
+
+          {product.attributes.map(
+            (attr) =>
+              activeTab === attr.key && (
+                <ul key={attr.key} className="tab-list">
+                  {attr.values.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              )
+          )}
+
+          {activeTab === "reviews" && (
+            <div className="reviews-section">
+              
+              <div className="write-review">
+                <h3>Write a Review</h3>
+
+                {!user && (
+                  <p className="reviews-login-hint">
+                    Please login to rate or write a review.
+                  </p>
+                )}
+
+                <form onSubmit={handleSubmitReview} className="review-form">
+                  <label className="review-label">Your Rating</label>
+                  <div className="star-input">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        className={
+                          star <= reviewRating ? "star-btn active" : "star-btn"
+                        }
+                        onClick={() => {
+                          if (!user) {
+                            setShowLoginModal(true);
+                            return;
+                          }
+                          setReviewRating(star);
+                        }}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+
+                  <label className="review-label">Your Review</label>
+                  <textarea
+                    className="review-textarea"
+                    rows={4}
+                    placeholder="Share your experience..."
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                  />
+
+                  {reviewError && (
+                    <p className="review-error">{reviewError}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="review-submit-btn"
+                    disabled={reviewSubmitting}
+                  >
+                    {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                  </button>
+                </form>
+              </div>
+
+              <h3 className="review-section-title">Customer Reviews</h3>
+              <div className="reviews-list">
+                {reviews.length === 0 ? (
+                  <p className="no-reviews">
+                    No reviews yet. Be the first to review this product.
+                  </p>
+                ) : (
+                  reviews.map((r) => (
+                    <div key={r._id} className="review-card">
+                      <div className="review-header">
+                        <span className="review-stars">
+                          {"★★★★★".slice(0, r.rating)}
+                          {"☆☆☆☆☆".slice(r.rating)}
+                        </span>
+                        <span className="review-username">{r.username}</span>
+                        <span className="review-date">
+                          {new Date(r.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="review-comment">{r.comment}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <LoginRequiredModal
         show={showLoginModal}
         onClose={() => setShowLoginModal(false)}
