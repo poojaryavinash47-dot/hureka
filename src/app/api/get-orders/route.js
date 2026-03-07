@@ -105,11 +105,8 @@ export async function GET(req) {
         quantity: item.quantity,
         total: item.total,
         price: item.price,
-        image:
-          item.image?.src ||
-          (Array.isArray(item.meta_data)
-            ? item.meta_data.find((m) => m.key === "_thumbnail_id")?.value
-            : null),
+        product_id: item.product_id,
+        image: item.image?.src || null,
       })),
       total: order.total,
       billing: order.billing,

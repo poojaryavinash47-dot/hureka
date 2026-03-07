@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import OrderTracker from "./OrderTracker";
+import { getProductById, getWooPlaceholderImage } from "@/lib/wooCommerce";
 
 function formatDate(dateString) {
   if (!dateString) return "-";
@@ -27,9 +29,52 @@ export default function OrderCard({ order }) {
   const firstItem = items[0] || {};
   const remainingCount = Math.max(items.length - 1, 0);
 
-  const imageSrc =
-    firstItem.image ||
-    "/products/default.png"; // fallback; replace with existing asset if needed
+  const [imageSrc, setImageSrc] = useState(() => {
+    if (typeof firstItem.image === "string" && /^https?:\/\//.test(firstItem.image)) {
+      return firstItem.image;
+    }
+    return getWooPlaceholderImage();
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // If API already gave us a proper URL, use it directly
+    if (typeof firstItem.image === "string" && /^https?:\/\//.test(firstItem.image)) {
+      setImageSrc(firstItem.image);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    // Otherwise, fetch the product thumbnail using product_id
+    const productId = firstItem.product_id;
+    if (!productId) {
+      setImageSrc(getWooPlaceholderImage());
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    (async () => {
+      try {
+        const product = await getProductById(productId);
+        const src = product?.images?.[0]?.src || getWooPlaceholderImage();
+        if (isMounted) {
+          setImageSrc(src);
+        }
+      } catch (err) {
+        console.error("Failed to load product thumbnail for order item", err);
+        if (isMounted) {
+          setImageSrc(getWooPlaceholderImage());
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [firstItem.image, firstItem.product_id]);
 
   const orderNumber = order.number || order.id;
 
